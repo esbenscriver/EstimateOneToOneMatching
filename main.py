@@ -19,11 +19,17 @@ types_X, types_Y = 40, 60
 number_of_parameters_X, number_of_parameters_Y = 2, 3
 
 # Simulate choice-specific utilities
-covariates_X = -random.uniform(key=random.PRNGKey(111), shape=(types_X, types_Y, number_of_parameters_X))
-covariates_Y = random.uniform(key=random.PRNGKey(112), shape=(types_X, types_Y, number_of_parameters_Y))
+covariates_X = -random.uniform(
+    key=random.PRNGKey(111), shape=(types_X, types_Y, number_of_parameters_X)
+)
+covariates_Y = random.uniform(
+    key=random.PRNGKey(112), shape=(types_X, types_Y, number_of_parameters_Y)
+)
 
 # Simulate choice-specific utilities
-parameters = random.uniform(key=random.PRNGKey(113), shape=(number_of_parameters_X + number_of_parameters_Y,))
+parameters = random.uniform(
+    key=random.PRNGKey(113), shape=(number_of_parameters_X + number_of_parameters_Y,)
+)
 
 # Simulate distribution of agents
 marginal_distribution_X = random.uniform(key=random.PRNGKey(115), shape=(types_X, 1))
@@ -53,7 +59,9 @@ data = ObservedData(
     unmatched_Y=model.marginal_distribution_Y * pY_0y,
 )
 
-assert jnp.allclose(data.matched, model.marginal_distribution_Y * pY_xy), "demand do not match"
+assert jnp.allclose(data.matched, model.marginal_distribution_Y * pY_xy), (
+    "demand do not match"
+)
 
 guess = jnp.zeros_like(parameters)
 
@@ -62,6 +70,10 @@ print(f"{parameters = }")
 print(f"{parameter_estimates = }")
 
 print(f"negative log-lik (true): {model.neg_log_likelihood(parameters, data)}")
-print(f"negative log-lik (estimated): {model.neg_log_likelihood(parameter_estimates, data)}")
+print(
+    f"negative log-lik (estimated): {model.neg_log_likelihood(parameter_estimates, data)}"
+)
 
-assert jnp.allclose(parameter_estimates, parameters), "true parameters and estimated parameters do no match"
+assert jnp.allclose(parameter_estimates, parameters), (
+    "true parameters and estimated parameters do no match"
+)
