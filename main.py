@@ -66,13 +66,6 @@ assert jnp.allclose(data.matched, model.marginal_distribution_Y * pY_xy), (
 guess = jnp.zeros_like(parameters)
 
 parameter_estimates = model.fit(guess, data)
-print(f"{parameters = }")
-print(f"{parameter_estimates = }")
-
-print(f"negative log-lik (true): {model.neg_log_likelihood(parameters, data)}")
-print(
-    f"negative log-lik (estimated): {model.neg_log_likelihood(parameter_estimates, data)}"
-)
 
 assert jnp.allclose(parameter_estimates, parameters), (
     "true parameters and estimated parameters do no match"
