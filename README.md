@@ -6,7 +6,7 @@ Estimate by maximum likelihood a one-to-one matching model with transferable uti
 
 The model and estimator are implemented in JAX. We leverage the [SQUAREM](https://github.com/esbenscriver/squarem-JAXopt) accelerator to efficiently solve the systemt of fixed-point equations that characterize the equilibrium transfers. Finally, we rely on the [JAXopt](https://github.com/google/jaxopt) implementation of implicit differentiation when calculating the gradient of the log-likelihood function automatically.
 
-Let $\theta$ denote the parameters to be estimated. $\theta$ is estimated by maximum likelihood. Similar to [Rust (1987)](https://doi.org/10.2307/1911259) the estimation procedures via a nested fixed-point algorithm with an outer loop that search over different values of $\hat{\theta}$ to maximize the log-likelihood function, and an inner loop that for $\hat{\theta}$ solves for the equilibrium transfer, $t^{*}_{xy}(\theta)$, and evaluates the choice probabilities, $p^{X}_{xy}(\theta)$, $p^{Y}_{xy}(\theta)$, $p^{X}_{x0}(\theta)$, and $p^{Y}_{0y}(\theta)$, and the full log-likelihood function, \log L(\theta).
+Let $\theta$ denote the parameters to be estimated. $\theta$ is estimated by maximum likelihood. Similar to [Rust (1987)](https://doi.org/10.2307/1911259) the estimation procedures via a nested fixed-point algorithm with an outer loop that search over different values of $\hat{\theta}$ to maximize the log-likelihood function, and an inner loop that for $\hat{\theta}$ solves for the equilibrium transfer, $t^{*}_{xy}(\theta)$, and evaluates the full log-likelihood function, \log L(\theta).
 
 The full log-likelihood function is given by the sum of the log-likelihood of transfers, matched agents of type X, matched agents of type Y, unmatched agents of type X, and unmatched agents of type Y
 
@@ -43,3 +43,5 @@ the log-likelihood of the unmatched agents of type Y is given as
 $$
     \log L_{u}^{Y}(\theta) = \sum_y^Y n_{0y} \log p^{Y}_{0y}(\theta),
 $$
+
+where $p^{X}_{xy}(\theta)$, $p^{Y}_{xy}(\theta)$, $p^{X}_{x0}(\theta)$, and $p^{Y}_{0y}(\theta)$ are the choice probabilities of agents of type X and Y consistent with $t^{*}_{xy}(\theta)$.
