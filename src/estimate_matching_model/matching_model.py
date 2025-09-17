@@ -254,26 +254,23 @@ class MatchingModel(Pytree, mutable=False):
             + jnp.sum(data.unmatched_Y)
         )
 
-        log_lik_transfer = -jnp.log(jnp.std(transfer - data.transfer)) * transfer.size
-        log_lik_matched_X = (
-            jnp.nansum(data.matched * jnp.log(pX_xy)) / number_of_observations
+        log_lik_transfer = -jnp.log(jnp.std(transfer - data.transfer)) * (
+            transfer.size / 2
         )
-        log_lik_matched_Y = (
-            jnp.nansum(data.matched * jnp.log(pY_xy)) / number_of_observations
-        )
-        log_lik_unmatched_X = (
-            jnp.nansum(data.unmatched_X * jnp.log(pX_x0)) / number_of_observations
-        )
-        log_lik_unmatched_Y = (
-            jnp.nansum(data.unmatched_Y * jnp.log(pY_0y)) / number_of_observations
-        )
+        log_lik_matched_X = jnp.nansum(data.matched * jnp.log(pX_xy))
+        log_lik_matched_Y = jnp.nansum(data.matched * jnp.log(pY_xy))
+        log_lik_unmatched_X = jnp.nansum(data.unmatched_X * jnp.log(pX_x0))
+        log_lik_unmatched_Y = jnp.nansum(data.unmatched_Y * jnp.log(pY_0y))
 
-        neg_log_lik = -(
-            log_lik_transfer
-            + log_lik_matched_X
-            + log_lik_matched_Y
-            + log_lik_unmatched_X
-            + log_lik_unmatched_Y
+        neg_log_lik = (
+            -(
+                log_lik_transfer
+                + log_lik_matched_X
+                + log_lik_matched_Y
+                + log_lik_unmatched_X
+                + log_lik_unmatched_Y
+            )
+            / number_of_observations
         )
         return neg_log_lik
 
