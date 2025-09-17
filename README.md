@@ -14,7 +14,7 @@ $$
     \log L(\theta) = \log L_{t}(\theta) + \log L_{m}^{X}(\theta) + \log L_{m}^{Y}(\theta) + \log L_{u}^{X}(\theta) + \log L_{u}^{Y}(\theta).
 $$
 
-The log-likelihood of transfers are given in terms of the squared difference between the model consistent equilibrium transfer and the observed transfer, $t^{*}_{xy}(\theta) - t_{xy}$,
+The log-likelihood of transfers are given in terms of the squared difference between the model consistent equilibrium transfer and the observed transfer,
 
 $$
     \log L_t(\theta) = - \tfrac{XY}{2} \log \left(\tfrac{1}{XY} \sum_x^X \sum_y^Y \left(t^{*}_{xy}(\theta) - t_{xy}\right)^2 \right) ,
