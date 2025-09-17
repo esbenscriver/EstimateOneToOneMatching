@@ -24,10 +24,10 @@ class ObservedData(Pytree, mutable=False):
     """Observed data used for maximum likelihood estimation
 
     Attributes:
-        transfer (jnp.ndarray): observed transfers
-        matched (jnp.ndarray): number of observed matched agents
-        unmatched_X (jnp.ndarray): number of observed unmatched agents of type X
-        unmatched_Y (jnp.ndarray): number of observed unmatched agents of type Y
+        transfer (jnp.ndarray): observed transfers between matched agents
+        matched (jnp.ndarray): observed numbers of matched agents
+        unmatched_X (jnp.ndarray): observed numbers of unmatched agents of type X
+        unmatched_Y (jnp.ndarray): observed numbers of unmatched agents of type Y
     """
 
     transfer: jnp.ndarray
@@ -173,29 +173,6 @@ class MatchingModel(Pytree, mutable=False):
         t_updated = t_initial + 1 / 2 * jnp.log(demand_Y / demand_X)
         return t_updated
 
-    def Utilities_of_agents(
-        self, params: jnp.ndarray
-    ) -> tuple[jnp.ndarray, jnp.ndarray]:
-        """Compute match-specific utilities for agents of type X and Y
-
-        Args:
-            params (jnp.ndarray): parameters of agents utility functions
-
-        Returns:
-        utility_X (jnp.ndarray):
-            utilities for agents of type X
-        utility_Y (jnp.ndarray):
-            utilities for agents of type Y
-        """
-        number_of_covariates_X = self.covariates_X.shape[-1]
-
-        parameters_X = params[:number_of_covariates_X]
-        parameters_Y = params[number_of_covariates_X:]
-
-        utility_X = self.Utility(self.covariates_X, parameters_X)
-        utility_Y = self.Utility(self.covariates_Y, parameters_Y)
-        return utility_X, utility_Y
-
     def solve(
         self,
         utility_X: jnp.ndarray,
@@ -229,14 +206,37 @@ class MatchingModel(Pytree, mutable=False):
         ).run(transfer_init, utility_X, utility_Y)
         return result.params
 
+    def Utilities_of_agents(
+        self, params: jnp.ndarray
+    ) -> tuple[jnp.ndarray, jnp.ndarray]:
+        """Compute match-specific utilities for agents of type X and Y
+
+        Args:
+            params (jnp.ndarray): parameters of agents' utility functions
+
+        Returns:
+        utility_X (jnp.ndarray):
+            utilities for agents of type X
+        utility_Y (jnp.ndarray):
+            utilities for agents of type Y
+        """
+        number_of_covariates_X = self.covariates_X.shape[-1]
+
+        parameters_X = params[:number_of_covariates_X]
+        parameters_Y = params[number_of_covariates_X:]
+
+        utility_X = self.Utility(self.covariates_X, parameters_X)
+        utility_Y = self.Utility(self.covariates_Y, parameters_Y)
+        return utility_X, utility_Y
+
     def neg_log_likelihood(
         self, params: jnp.ndarray, data: ObservedData
     ) -> jnp.ndarray:
         """Computes the negative log-likelihood function
 
         Args:
-            params (jnp.ndarray): parameters
-            data (ObservedData): observed data
+            params (jnp.ndarray): parameters of agents' utility functions
+            data (ObservedData): observed transfers and numbers of matched and unmatched agents
 
         Returns:
             neg_log_lik (jnp.ndarray): negative log-likelihood value
@@ -275,7 +275,6 @@ class MatchingModel(Pytree, mutable=False):
             + log_lik_unmatched_X
             + log_lik_unmatched_Y
         )
-        # neg_log_lik = -(log_lik_matched_X + log_lik_matched_Y + log_lik_unmatched_X + log_lik_unmatched_Y)
         return neg_log_lik
 
     def fit(
@@ -284,13 +283,16 @@ class MatchingModel(Pytree, mutable=False):
         data: ObservedData,
         tol: float = 1e-8,
         maxiter: int = 100,
-        verbose: bool = True,
+        verbose: bool | int = True,
     ) -> jnp.ndarray:
         """Estimate parameters of matching model by maximum likelihood (minimize the negative log-likelihood function)
 
         Args:
             guess (jnp.ndarray): initial parameter guess
-            data (ObservedData): observed data
+            data (ObservedData): observed transfers and numbers of matched and unmatched agents
+            tol (float): tolerance of the stopping criterion
+            maxiter (int): maximum number of proximal gradient descent iterations
+            verbose (bool): if set to True or 1 prints the information at each step of the solver, if set to 2, print also the information of the linesearch
 
         Returns:
             params (jnp.ndarray): parameter estimates
