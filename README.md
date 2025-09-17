@@ -44,4 +44,4 @@ $$
     \log L_{u}^{Y}(\theta) = \sum_y^Y n_{0y} \log p^{Y}_{0y}(\theta),
 $$
 
-where $p^{X}_{xy}(\theta)\text{, } p^{Y}_{xy}(\theta)\text{, } $p^{X}_{x0}(\theta) \text{, and }p^{Y}_{0y}(\theta)$ are the choice probabilities of agents of type X and Y consistent with $t^{*}_{xy}(\theta)$.
+where $p^{X}_{xy}(\theta)\text{, } p^{Y}_{xy}(\theta)\text{, } p^{X}_{x0}(\theta) \text{, and }p^{Y}_{0y}(\theta)$ are the choice probabilities of agents of type X and Y consistent with $t^{*}_{xy}(\theta)$.
