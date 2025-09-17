@@ -44,4 +44,4 @@ $$
     \log L_{u}^{Y}(\theta) = \sum_y^Y n_{0y} \log p^{Y}_{0y}(\theta),
 $$
 
-where $p^{X}_{xy}(\theta)$, $p^{Y}_{xy}(\theta)$, $p^{X}_{x0}(\theta)$, and $p^{Y}_{0y}(\theta)$ are the model consistent choice probabilities of agents of type X and Y. 
+where $p^{X}_{xy}\left( \theta \right)$, $p^{Y}_{xy}\left( \theta \right)$, $p^{X}_{x0}\left( \theta \right)$, and $p^{Y}_{0y}\left( \theta \right)$ are the model consistent choice probabilities of agents of type X and Y. 
