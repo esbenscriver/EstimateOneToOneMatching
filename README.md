@@ -10,11 +10,11 @@ Let $\theta$ denote the parameters to be estimated. $\theta$ is estimated by max
 
 The full log-likelihood function is given by the sum of the log-likelihood contribution of transfers, matched agents of type X, matched agents of type Y, unmatched agents of type X, and unmatched agents of type Y
 
-$
+$$
     \log L(\theta) = \log L_{t}(\theta) + \log L_{m}^{X}(\theta) + \log L_{m}^{Y}(\theta) + \log L_{u}^{X}(\theta) + \log L_{u}^{Y}(\theta)
-$
+$$
 
 the log-likelihood contribution of transfers are given in terms of the squared difference between the model consistent and observed transfer
-$
+$$
     \log L_t(\theta) = - \sum_x \sum_y \log((t^{*}_{xy}(\theta) - t_{xy})^2)
-$
+$$
