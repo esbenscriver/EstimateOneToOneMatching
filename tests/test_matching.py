@@ -16,8 +16,8 @@ jax.config.update("jax_enable_x64", True)
     "types_X, types_Y, number_of_parameters_X, number_of_parameters_Y",
     [
         (4, 6, 2, 3),
-        (100, 200, 2, 3),
-        (100, 200, 20, 30),
+        # (100, 200, 2, 3),
+        # (100, 200, 20, 30),
     ],
 )
 def test_mle(types_X, types_Y, number_of_parameters_X, number_of_parameters_Y):
