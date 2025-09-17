@@ -46,7 +46,7 @@ def test_mle(types_X, types_Y, number_of_parameters_X, number_of_parameters_Y):
 
     utility_X, utility_Y = model.Utilities_of_agents(params=parameters)
 
-    transfer = model.solve(utility_X=utility_X, utility_Y=utility_Y, verbose=True)
+    transfer = model.solve(utility_X=utility_X, utility_Y=utility_Y, verbose=False)
 
     pX_xy, pX_x0 = model.ChoiceProbabilities_X(transfer, utility_X)
     pY_xy, pY_0y = model.ChoiceProbabilities_Y(transfer, utility_Y)
@@ -64,7 +64,7 @@ def test_mle(types_X, types_Y, number_of_parameters_X, number_of_parameters_Y):
 
     guess = jnp.zeros_like(parameters)
 
-    parameter_estimates = model.fit(guess, data)
+    parameter_estimates = model.fit(guess, data, verbose=False)
 
     assert jnp.allclose(parameter_estimates, parameters), (
         "true parameters and estimated parameters do no match"
