@@ -17,7 +17,7 @@ $$
 The log-likelihood of transfers are given in terms of the squared difference between the model consistent and observed transfer
 
 $$
-    \log L_t(\theta) = - \sum_x \sum_y \log((t^{*}_{xy}(\theta) - t_{xy})^2),
+    \log L_t(\theta) = - \tfrac{1}{2XY}\sum_x \sum_y \log((t^{*}_{xy}(\theta) - t_{xy})^2) ,
 $$
 
 the log-likelihood of the matched agents of type X is given as
@@ -41,5 +41,5 @@ $$
 the log-likelihood of the unmatched agents of type Y is given as
 
 $$
-    \log L_{u}^{Y}(\theta) = \sum_x n_{0y} \log p^{Y}_{0y}(\theta).
+    \log L_{u}^{Y}(\theta) = \sum_y n_{0y} \log p^{Y}_{0y}(\theta).
 $$
