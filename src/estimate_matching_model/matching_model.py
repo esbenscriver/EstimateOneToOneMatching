@@ -253,8 +253,8 @@ class MatchingModel(Pytree, mutable=False):
             + jnp.sum(data.unmatched_X)
             + jnp.sum(data.unmatched_Y)
         )
-
-        log_lik_transfer = -jnp.log(jnp.std(transfer - data.transfer)) * (
+        
+        log_lik_transfer = -jnp.log(jnp.mean((transfer - data.transfer)**2)) * (
             transfer.size / 2
         )
         log_lik_matched_X = jnp.nansum(data.matched * jnp.log(pX_xy))
