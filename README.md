@@ -17,7 +17,7 @@ $$
 The log-likelihood of transfers are given in terms of the squared difference between the model consistent and observed transfer
 
 $$
-    \log L_t(\theta) = - \tfrac{1}{2XY} \log \left(\sum_x^X \sum_y^Y \left(t^{*}_{xy}(\theta) - t_{xy}\right)^2 \right) ,
+    \log L_t(\theta) = - \tfrac{XY}{2} \log \left(\tfrac{1}{XY} \sum_x^X \sum_y^Y \left(t^{*}_{xy}(\theta) - t_{xy}\right)^2 \right) ,
 $$
 
 the log-likelihood of the matched agents of type X is given as
