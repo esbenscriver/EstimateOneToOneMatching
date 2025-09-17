@@ -41,5 +41,7 @@ $$
 the log-likelihood of the unmatched agents of type Y is given as
 
 $$
-    \log L_{u}^{Y}(\theta) = \sum_y^Y n_{0y} \log p^{Y}_{0y}(\theta).
+    \log L_{u}^{Y}(\theta) = \sum_y^Y n_{0y} \log p^{Y}_{0y}(\theta),
 $$
+
+where $p^{X}_{xy}(\theta)$, $p^{Y}_{xy}(\theta)$, $p^{X}_{x0}(\theta)$, and $p^{Y}_{0y}(\theta)$ are the model consistent choice probabilities of agents of type X and Y. 
