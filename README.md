@@ -17,29 +17,29 @@ $$
 The log-likelihood of transfers are given in terms of the squared difference between the model consistent and observed transfer
 
 $$
-    \log L_t(\theta) = - \tfrac{1}{2XY}\sum_x \sum_y \log((t^{*}_{xy}(\theta) - t_{xy})^2) ,
+    \log L_t(\theta) = - \tfrac{1}{2XY} \sum_x^X \sum_y^Y \log((t^{*}_{xy}(\theta) - t_{xy})^2) ,
 $$
 
 the log-likelihood of the matched agents of type X is given as
 
 $$
-    \log L_{m}^{X}(\theta) = \sum_x \sum_y n_{xy} \log p^{X}_{xy}(\theta),
+    \log L_{m}^{X}(\theta) = \sum_x^X \sum_y^Y n_{xy} \log p^{X}_{xy}(\theta),
 $$
 
 the log-likelihood of the matched agents of type Y is given as
 
 $$
-    \log L_{m}^{Y}(\theta) = \sum_x \sum_y n_{xy} \log p^{Y}_{xy}(\theta),
+    \log L_{m}^{Y}(\theta) = \sum_x^X \sum_y^Y n_{xy} \log p^{Y}_{xy}(\theta),
 $$
 
 the log-likelihood of the unmatched agents of type X is given as
 
 $$
-    \log L_{u}^{X}(\theta) = \sum_x n_{x0} \log p^{X}_{x0}(\theta),
+    \log L_{u}^{X}(\theta) = \sum_x^X n_{x0} \log p^{X}_{x0}(\theta),
 $$
 
 the log-likelihood of the unmatched agents of type Y is given as
 
 $$
-    \log L_{u}^{Y}(\theta) = \sum_y n_{0y} \log p^{Y}_{0y}(\theta).
+    \log L_{u}^{Y}(\theta) = \sum_y^Y n_{0y} \log p^{Y}_{0y}(\theta).
 $$
