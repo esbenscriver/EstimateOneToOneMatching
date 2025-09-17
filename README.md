@@ -45,6 +45,7 @@ $$
 $$
 
 where 
+
 $$
     p^{X}_{xy}(\theta)\text{, } p^{Y}_{xy}(\theta)\text{, } p^{X}_{x0}(\theta) \text{, and }p^{Y}_{0y}(\theta)
 $$ 
