@@ -71,6 +71,8 @@ parameter_estimates = model.fit(guess, data, verbose=True)
 table = list(zip(parameters, parameter_estimates))
 
 # Print with headers
-print(tabulate(table, headers=["True parameters", "Estimated parameters"], tablefmt="grid"))
-
-
+print(
+    tabulate(
+        table, headers=["True parameters", "Estimated parameters"], tablefmt="grid"
+    )
+)

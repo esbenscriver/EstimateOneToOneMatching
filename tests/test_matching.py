@@ -11,6 +11,7 @@ import pytest
 # Increase precision to 64 bit
 jax.config.update("jax_enable_x64", True)
 
+
 @pytest.mark.parametrize(
     "types_X, types_Y, number_of_parameters_X, number_of_parameters_Y",
     [
@@ -30,12 +31,17 @@ def test_mle(types_X, types_Y, number_of_parameters_X, number_of_parameters_Y):
 
     # Simulate choice-specific utilities
     parameters = random.uniform(
-        key=random.PRNGKey(113), shape=(number_of_parameters_X + number_of_parameters_Y,)
+        key=random.PRNGKey(113),
+        shape=(number_of_parameters_X + number_of_parameters_Y,),
     )
 
     # Simulate distribution of agents
-    marginal_distribution_X = random.uniform(key=random.PRNGKey(115), shape=(types_X, 1))
-    marginal_distribution_Y = random.uniform(key=random.PRNGKey(116), shape=(1, types_Y))
+    marginal_distribution_X = random.uniform(
+        key=random.PRNGKey(115), shape=(types_X, 1)
+    )
+    marginal_distribution_Y = random.uniform(
+        key=random.PRNGKey(116), shape=(1, types_Y)
+    )
 
     model = MatchingModel(
         covariates_X=covariates_X,
@@ -69,4 +75,3 @@ def test_mle(types_X, types_Y, number_of_parameters_X, number_of_parameters_Y):
     assert jnp.allclose(parameter_estimates, parameters), (
         "true parameters and estimated parameters do no match"
     )
-
