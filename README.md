@@ -10,23 +10,27 @@ The match-specific deterministic payoffs of the agents of type X and Y are given
 
 $$
     v^{X}_{xy} = z^{X}_{xy} \beta^{X} + t_{xy}, \\\\
-    v^{Y}_{xy} = z^{Y}_{xy} \beta^{Y} - t_{xy}.
+    v^{Y}_{xy} = z^{Y}_{xy} \beta^{Y} - t_{xy},
 $$
 
-The transfers, $t_{xy}$, are determined from a set of market clearing conditions
+and the correponding choice probabilities are given by the logit expressions
 
 $$
-    n^{X}_{xy} p^{X}_{xy}(v^{X}_{xy}) = n^{Y}_{xy} p^{Y}_{xy}(v^{Y}_{xy}),
+    p^{X}_{xy}(v^{X}_{x \cdot}) = \frac{\exp{(v^{X}_{xy})}}{1 + \sum_{j} \exp{(v^{X}_{xj})}}, \\\\
+    p^{Y}_{xy}(v^{Y}_{\cdot y}) = \frac{\exp{(v^{Y}_{xy})}}{1 + \sum_{i} \exp{(v^{Y}_{iy})}}.
 $$
 
-where the choice probabilities are given by the logit expressions
+Note thate the deterministic payoffs of the outside options are normalized to zero, $v^{X}_{x0}=v^{Y}_{0y}=0$. 
+
+Finally, the transfers, $t_{xy}$, are determined from a set of market clearing conditions
 
 $$
-    p^{X}_{xy}(v^{X}_{x \cdot}) = \frac{\exp{(v^{X}_{xy})}}{1 + \sum_{j} \exp{(v_{xj})}}, \\\\
-    p^{Y}_{xy}(v^{Y}_{\cdot y}) = \frac{\exp{(v^{Y}_{xy})}}{1 + \sum_{i} \exp{(v_{iy})}}.
+    n^{X}_{x} p^{X}_{xy}(v^{X}_{xy}) = n^{Y}_{y} p^{Y}_{xy}(v^{Y}_{xy}),
 $$
 
-Note thate the deterministic payoffs of the outside options are normalized to zero, $v^{X}_{x0}=v^{Y}_{0y}=0$.
+
+where $(n^{X}_{x}, n^{Y}_{y})$ are the marginal distribution of agents of type X and Y.
+
 
 Let $\theta \in (\beta^X,beta^Y)$ denote the parameters to be estimated. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with a iid normal distributed measurment error, $\varepsilon_{xy} \sim \mathcal{N}(0,\sigma^{2})$  
 
