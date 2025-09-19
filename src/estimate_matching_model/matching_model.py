@@ -89,12 +89,14 @@ class MatchingModel(Pytree, mutable=False):
         """
         return jnp.einsum("ijk, k -> ij", covariates, parameters)
 
-    def ChoiceProbabilities_X(self, transfer: Array, utility_X: Array) -> tuple[Array, Array]:
+    def ChoiceProbabilities_X(
+        self, transfer: Array, utility_X: Array
+    ) -> tuple[Array, Array]:
         """Computes choice probabilities of agents of type X
 
         Args:
             transfer (Array): match-specific transfers
-            utilities (Array): match-specific utilities for agents of type X
+            utility_X (Array): match-specific utilities for agents of type X
 
         Returns:
             ChoiceProbabilities (Array): match-specific choice probabilities for agents of type X
@@ -104,12 +106,12 @@ class MatchingModel(Pytree, mutable=False):
 
     def ChoiceProbabilities_Y(
         self, transfer: Array, utility_Y: Array
-    ) -> tuple[jnp.ndarray, jnp.ndarray]:
+    ) -> tuple[Array, Array]:
         """Computes choice probabilities of agents of type Y
 
         Args:
             transfer (Array): match-specific transfers
-            utilities (Array): match-specific utilities for agents of type Y
+            utility_Y (Array): match-specific utilities for agents of type Y
 
         Returns:
             ChoiceProbabilities (Array): match-specific choice probabilities for agents of type Y
