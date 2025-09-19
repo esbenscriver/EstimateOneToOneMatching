@@ -6,6 +6,28 @@ Estimate by maximum likelihood a one-to-one matching model with transferable uti
 
 The model and estimator are implemented in JAX. We leverage the [SQUAREM](https://github.com/esbenscriver/squarem-JAXopt) accelerator to efficiently solve the systemt of fixed-point equations that characterize the equilibrium transfers. Finally, we rely on the [JAXopt](https://github.com/google/jaxopt) implementation of implicit differentiation when calculating the gradient of the log-likelihood function automatically.
 
+The match-specific deterministic payoffs of the agents of type X and Y are given as
+
+$$
+    v^{X}_{xy} = z^{X}_{xy} \beta^{X} + t_{xy},
+    v^{Y}_{xy} = z^{Y}_{xy} \beta^{Y} - t_{xy}.
+$$
+
+The transfers, $t_{xy}$, are determined from a set of market clearing conditions
+
+$$
+    n^{X}_{xy} p^{X}_{xy}(v^{X}_{xy}) = n^{Y}_{xy} p^{Y}_{xy}(v^{Y}_{xy}),
+$$
+
+where the choice probabilities are given by the logit expressions
+
+$$
+    p^{X}_{xy}(v^{X}_{x \cdot}) = \frac{\exp{(v^{X}_{xy})}}{1 + \sum_{j} \exp{(v_{xj})},
+    p^{Y}_{xy}(v^{Y}_{\cdot y}) = \frac{\exp{(v^{Y}_{xy})}}{1 + \sum_{i} \exp{(v_{iy})}.
+$$
+
+Note thate the deterministic payoffs of the outside options are normalized to zero, $v^{X}_{x0}=v^{Y}_{0y}=0$.
+
 Let $\theta$ denote the parameters to be estimated. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with a iid normal distributed measurment error, $\varepsilon_{xy} \sim \mathcal{N}(0,\sigma^{2})$  
 
 $$
