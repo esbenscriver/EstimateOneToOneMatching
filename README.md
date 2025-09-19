@@ -9,7 +9,7 @@ The model and estimator are implemented in JAX. We leverage the [SQUAREM](https:
 Let $\theta$ denote the parameters to be estimated. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with a iid normal distributed measurment error, $\varepsilon_{xy} \sim \mathcal{N}(0,\sigma^{2})$  
 
 $$
-    t_{xy} = t^{*}_{xy}(\hat{\theta}) + \varepsilon_{xy}.
+    t_{xy}(\theta) = t^{*}_{xy}(\theta) + \varepsilon_{xy}.
 $$
 
 Similar to [Rust (1987)](https://doi.org/10.2307/1911259) the estimation procedures via a nested fixed-point algorithm with an outer loop that search over different values of $\hat{\theta}$ to maximize the log-likelihood function, and an inner loop that for $\hat{\theta}$ solves for the equilibrium transfer, $t^{*}_{xy}(\hat{\theta})$, and evaluates the full log-likelihood function, $\log L(\hat{\theta})$.
