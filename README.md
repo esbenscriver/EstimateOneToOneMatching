@@ -6,6 +6,7 @@ Estimate by maximum likelihood a one-to-one matching model with transferable uti
 
 The model and estimator are implemented in JAX. We leverage the [SQUAREM](https://github.com/esbenscriver/squarem-JAXopt) accelerator to efficiently solve the systemt of fixed-point equations that characterize the equilibrium transfers. Finally, we rely on the [JAXopt](https://github.com/google/jaxopt) implementation of implicit differentiation when calculating the gradient of the log-likelihood function automatically.
 
+## Model description
 The matching market consists of agent of type X and Y on both sides of the market. Each agent chose who they want to match with. The match-specific deterministic payoffs of the agents of type X and Y are given as
 
 $$
@@ -32,7 +33,7 @@ $$
 
 where $(n^{X}_{x}, n^{Y}_{y})$ are the marginal distribution of agents of type X and Y.
 
-
+## Maximum likelihood estimator
 Let $\theta = (\beta^X, \beta^Y)$ denote the parameters to be estimated. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with a iid normal distributed measurment error, $\varepsilon_{xy} \sim \mathcal{N}(0,\sigma^{2})$  
 
 $$
