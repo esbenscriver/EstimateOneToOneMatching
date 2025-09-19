@@ -18,10 +18,17 @@ where $t_{xy}$ is a match-specific transfer from agent y to agent x. The corresp
 
 $$
     p^{X}_{xy}(v^{X}_{x \cdot}) = \frac{\exp{(v^{X}_{xy})}}{1 + \sum_{j} \exp{(v^{X}_{xj})}}, \\\\
-    p^{Y}_{xy}(v^{Y}_{\cdot y}) = \frac{\exp{(v^{Y}_{xy})}}{1 + \sum_{i} \exp{(v^{Y}_{iy})}}.
+    p^{Y}_{xy}(v^{Y}_{\cdot y}) = \frac{\exp{(v^{Y}_{xy})}}{1 + \sum_{i} \exp{(v^{Y}_{iy})}},
 $$
 
-Note that the deterministic payoffs of the outside options are normalized to zero
+where the choice probabilities of the outside options are
+
+$$
+    p^{X}_{x0}(v^{X}_{x \cdot}) = \frac{1}{1 + \sum_{j} \exp{(v^{X}_{xj})}}, \\\\
+    p^{Y}_{0y}(v^{Y}_{\cdot y}) = \frac{1}{1 + \sum_{i} \exp{(v^{Y}_{iy})}},
+$$
+
+Note that the deterministic payoffs of the outside options are normalized to zero for identification
 
 $$
     v^{X}_{x0} = v^{Y}_{0y} = 0.
