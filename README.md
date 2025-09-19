@@ -13,7 +13,7 @@ $$
     v^{Y}_{xy} = z^{Y}_{xy} \beta^{Y} - t_{xy},
 $$
 
-and the correponding choice probabilities are given by the logit expressions
+where $t_{xy}$ is a match-specific transfer from agent y to agent x. The correponding choice probabilities are given by the logit expressions
 
 $$
     p^{X}_{xy}(v^{X}_{x \cdot}) = \frac{\exp{(v^{X}_{xy})}}{1 + \sum_{j} \exp{(v^{X}_{xj})}}, \\\\
