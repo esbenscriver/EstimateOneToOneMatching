@@ -2,7 +2,7 @@
 [![CD](https://github.com/esbenscriver/EstimateOneToOneMatching/actions/workflows/cd.yml/badge.svg)](https://github.com/esbenscriver/EstimateOneToOneMatching/actions/workflows/cd.yml)
 
 # Description
-Estimate by maximum likelihood a one-to-one matching model with transferable utility where the choice probabilities of the agents on both sides of the matching market are given by the logit model. See see e.g. [Andersen (2025)](https://arxiv.org/pdf/2409.05518) for a model description.
+Estimate by maximum likelihood a one-to-one matching model with transferable utility where the choice probabilities of the agents on both sides of the matching market are given by the logit model.
 
 The model and estimator are implemented in JAX. We leverage the [SQUAREM](https://github.com/esbenscriver/squarem-JAXopt) accelerator to efficiently solve the system of fixed-point equations that characterize the equilibrium transfers. Finally, we rely on the [JAXopt](https://github.com/google/jaxopt) implementation of implicit differentiation when calculating the gradient of the log-likelihood function automatically.
 
@@ -59,7 +59,7 @@ $$
     t_{xy} = t_{xy} + \tfrac{1}{2} \log \left( \frac{ n^{Y}_{y} p^{Y}_{xy} } { n^{Y}_{y} p^{Y}_{xy} } \right),
 $$
 
-that can be shown to be a contraction mapping. Hence, iterating on this expression is guaranteed to converge to a unique solution, $t^{*}_{xy}$.
+that can be shown to be a contraction mapping. Hence, iterating on this expression is guaranteed to converge to a unique solution, $t^{*}_{xy}$, see[Andersen (2025)](https://arxiv.org/pdf/2409.05518).
 
 ## Maximum likelihood estimator
 Let $\theta = (\beta^X, \beta^Y)$ denote the parameters to be estimated. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with an iid normal distributed measurement error, $\varepsilon_{xy} \sim \mathcal{N}(0,\sigma^{2})$  
