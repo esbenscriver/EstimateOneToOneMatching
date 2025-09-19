@@ -34,7 +34,7 @@ $$
     p^{Y}_{0y}(v^{Y}_{\cdot y}) = \frac{1}{1 + \sum_{i} \exp{(v^{Y}_{iy})}}.
 $$
 
-Note that the deterministic payoffs of the outside options are normalized to zero for identification
+Note that the deterministic payoffs of being unmatched are normalized to zero for identification
 
 $$
     v^{X}_{x0} = v^{Y}_{0y} = 0.
