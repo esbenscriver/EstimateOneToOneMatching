@@ -6,7 +6,7 @@ Estimate by maximum likelihood a one-to-one matching model with transferable uti
 
 The model and estimator are implemented in JAX. We leverage the [SQUAREM](https://github.com/esbenscriver/squarem-JAXopt) accelerator to efficiently solve the systemt of fixed-point equations that characterize the equilibrium transfers. Finally, we rely on the [JAXopt](https://github.com/google/jaxopt) implementation of implicit differentiation when calculating the gradient of the log-likelihood function automatically.
 
-The match-specific deterministic payoffs of the agents of type X and Y are given as
+The matching market consists of agent of type X and Y on both sides of the market. Each agent chose who they want to match with. The match-specific deterministic payoffs of the agents of type X and Y are given as
 
 $$
     v^{X}_{xy} = z^{X}_{xy} \beta^{X} + t_{xy}, \\\\
@@ -20,12 +20,13 @@ $$
     p^{Y}_{xy}(v^{Y}_{\cdot y}) = \frac{\exp{(v^{Y}_{xy})}}{1 + \sum_{i} \exp{(v^{Y}_{iy})}}.
 $$
 
-Note thate the deterministic payoffs of the outside options are normalized to zero, $v^{X}_{x0}=v^{Y}_{0y}=0$. 
+Note thate the deterministic payoffs of the outside options are normalized to zero, $v^{X}_{x0} = v^{Y}_{0y} = 0$
+ 
 
 Finally, the transfers, $t_{xy}$, are determined from a set of market clearing conditions
 
 $$
-    n^{X}_{x} p^{X}_{xy}(v^{X}_{xy}) = n^{Y}_{y} p^{Y}_{xy}(v^{Y}_{xy}),
+    n^{X}_{x} p^{X}_{xy}(v^{X}_{x \cdot}) = n^{Y}_{y} p^{Y}_{xy}(v^{Y}_{\cdot y}),
 $$
 
 
