@@ -56,10 +56,10 @@ $$
 are the marginal distribution of agents of type X and Y. The distribution of equilibrium transfers can be determined from a system of fixed-point equations
 
 $$
-    t^{*}_{xy} = t^{*}_{xy} + \tfrac{1}{2} \log \left( \frac{ n^{Y}_{y} p^{Y}_{xy} } { n^{Y}_{y} p^{Y}_{xy} } \right),
+    t^{xy} = t^{xy} + \tfrac{1}{2} \log \left( \frac{ n^{Y}_{y} p^{Y}_{xy} } { n^{Y}_{y} p^{Y}_{xy} } \right),
 $$
 
-that can be shown to be a contraction mapping. Hence, for any guess of $t_{xy}$ iterating on this expression is guaranteed to converge to a unique solution, $t^{*}_{xy}$.
+that can be shown to be a contraction mapping. Hence, iterating on this expression is guaranteed to converge to a unique solution, $t^{*}_{xy}$.
 
 ## Maximum likelihood estimator
 Let $\theta = (\beta^X, \beta^Y)$ denote the parameters to be estimated. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with an iid normal distributed measurement error, $\varepsilon_{xy} \sim \mathcal{N}(0,\sigma^{2})$  
