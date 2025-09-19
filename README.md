@@ -9,7 +9,7 @@ The model and estimator are implemented in JAX. We leverage the [SQUAREM](https:
 The match-specific deterministic payoffs of the agents of type X and Y are given as
 
 $$
-    v^{X}_{xy} = z^{X}_{xy} \beta^{X} + t_{xy},
+    v^{X}_{xy} = z^{X}_{xy} \beta^{X} + t_{xy}, \\
     v^{Y}_{xy} = z^{Y}_{xy} \beta^{Y} - t_{xy}.
 $$
 
@@ -22,8 +22,8 @@ $$
 where the choice probabilities are given by the logit expressions
 
 $$
-    p^{X}_{xy}(v^{X}_{x \cdot}) = \frac{\exp{(v^{X}_{xy})}}{1 + \sum_{j} \exp{(v_{xj})},
-    p^{Y}_{xy}(v^{Y}_{\cdot y}) = \frac{\exp{(v^{Y}_{xy})}}{1 + \sum_{i} \exp{(v_{iy})}.
+    p^{X}_{xy}(v^{X}_{x \cdot}) = \frac{\exp{(v^{X}_{xy})}}{1 + \sum_{j} \exp{(v_{xj})}}, \\
+    p^{Y}_{xy}(v^{Y}_{\cdot y}) = \frac{\exp{(v^{Y}_{xy})}}{1 + \sum_{i} \exp{(v_{iy})}}.
 $$
 
 Note thate the deterministic payoffs of the outside options are normalized to zero, $v^{X}_{x0}=v^{Y}_{0y}=0$.
