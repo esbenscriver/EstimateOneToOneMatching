@@ -243,7 +243,7 @@ class MatchingModel(Pytree, mutable=False):
         transfer = self.solve(utility_X, utility_Y)
 
         pX_xy, pX_x0 = self.ChoiceProbabilities_X(transfer, utility_X)
-        pY_xy, pY_0y = self.ChoiceProbabilities_X(transfer, utility_Y)
+        pY_xy, pY_0y = self.ChoiceProbabilities_Y(transfer, utility_Y)
 
         number_of_observations = (
             2 * jnp.sum(data.matched)

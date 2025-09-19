@@ -16,8 +16,7 @@ jax.config.update("jax_enable_x64", True)
     "types_X, types_Y, number_of_parameters_X, number_of_parameters_Y",
     [
         (4, 6, 2, 3),
-        # (100, 200, 2, 3),
-        # (100, 200, 20, 30),
+        (100, 200, 20, 30),
     ],
 )
 def test_mle(types_X, types_Y, number_of_parameters_X, number_of_parameters_Y):
@@ -73,5 +72,5 @@ def test_mle(types_X, types_Y, number_of_parameters_X, number_of_parameters_Y):
     parameter_estimates = model.fit(guess, data, verbose=False)
 
     assert jnp.allclose(parameter_estimates, parameters), (
-        "true parameters and estimated parameters do no match"
+        f"true parameters and estimated parameters do no match:\n{parameter_estimates = }\n{parameters = }"
     )
