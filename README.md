@@ -53,7 +53,13 @@ $$
     (n^{X}_{x}, n^{Y}_{y})
 $$
 
-are the marginal distribution of agents of type X and Y.
+are the marginal distribution of agents of type X and Y. The distribution of equilibrium transfers can be determined from a system of fixed-point equations
+
+$$
+    t^{*}_{xy} = t^{*}_{xy} + \tfrac{1}{2} \log \left( \frac{n^{Y}_{y} p^{Y}_{xy}}{n^{Y}_{y} p^{Y}_{xy}} \right),
+$$
+
+that can be shown to be a contraction mapping. Hence, iterating on this expression is guaranteed to converge to a unique solution.
 
 ## Maximum likelihood estimator
 Let $\theta = (\beta^X, \beta^Y)$ denote the parameters to be estimated. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with an iid normal distributed measurement error, $\varepsilon_{xy} \sim \mathcal{N}(0,\sigma^{2})$  
