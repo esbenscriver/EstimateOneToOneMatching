@@ -10,7 +10,9 @@ The model and estimator are implemented in JAX. We leverage the [SQUAREM](https:
 The matching market consists of agent of type X and Y on both sides of the market. Each agent choose who they want to match with. The match-specific deterministic payoffs of the agents of type X and Y are given as
 
 $$
-    v^{X}_{xy} = z^{X}_{xy} \beta^{X} + t_{xy}, \\\\
+    v^{X}_{xy} = z^{X}_{xy} \beta^{X} + t_{xy}, 
+$$
+$$
     v^{Y}_{xy} = z^{Y}_{xy} \beta^{Y} - t_{xy},
 $$
 
@@ -25,7 +27,7 @@ where the choice probabilities of the outside options are
 
 $$
     p^{X}_{x0}(v^{X}_{x \cdot}) = \frac{1}{1 + \sum_{j} \exp{(v^{X}_{xj})}}, \\\\
-    p^{Y}_{0y}(v^{Y}_{\cdot y}) = \frac{1}{1 + \sum_{i} \exp{(v^{Y}_{iy})}},
+    p^{Y}_{0y}(v^{Y}_{\cdot y}) = \frac{1}{1 + \sum_{i} \exp{(v^{Y}_{iy})}}.
 $$
 
 Note that the deterministic payoffs of the outside options are normalized to zero for identification
