@@ -4,24 +4,28 @@
 # Description
 Estimate by maximum likelihood a one-to-one matching model with transferable utility where the choice probabilities of the agents on both sides of the matching market are given by the logit model. See see e.g. [Andersen (2025)](https://arxiv.org/pdf/2409.05518) for a model description.
 
-The model and estimator are implemented in JAX. We leverage the [SQUAREM](https://github.com/esbenscriver/squarem-JAXopt) accelerator to efficiently solve the systemt of fixed-point equations that characterize the equilibrium transfers. Finally, we rely on the [JAXopt](https://github.com/google/jaxopt) implementation of implicit differentiation when calculating the gradient of the log-likelihood function automatically.
+The model and estimator are implemented in JAX. We leverage the [SQUAREM](https://github.com/esbenscriver/squarem-JAXopt) accelerator to efficiently solve the system of fixed-point equations that characterize the equilibrium transfers. Finally, we rely on the [JAXopt](https://github.com/google/jaxopt) implementation of implicit differentiation when calculating the gradient of the log-likelihood function automatically.
 
 ## Model description
-The matching market consists of agent of type X and Y on both sides of the market. Each agent chose who they want to match with. The match-specific deterministic payoffs of the agents of type X and Y are given as
+The matching market consists of agent of type X and Y on both sides of the market. Each agent choose who they want to match with. The match-specific deterministic payoffs of the agents of type X and Y are given as
 
 $$
     v^{X}_{xy} = z^{X}_{xy} \beta^{X} + t_{xy}, \\\\
     v^{Y}_{xy} = z^{Y}_{xy} \beta^{Y} - t_{xy},
 $$
 
-where $t_{xy}$ is a match-specific transfer from agent y to agent x. The correponding choice probabilities are given by the logit expressions
+where $t_{xy}$ is a match-specific transfer from agent y to agent x. The corresponding choice probabilities are given by the logit expressions
 
 $$
     p^{X}_{xy}(v^{X}_{x \cdot}) = \frac{\exp{(v^{X}_{xy})}}{1 + \sum_{j} \exp{(v^{X}_{xj})}}, \\\\
     p^{Y}_{xy}(v^{Y}_{\cdot y}) = \frac{\exp{(v^{Y}_{xy})}}{1 + \sum_{i} \exp{(v^{Y}_{iy})}}.
 $$
 
-Note thate the deterministic payoffs of the outside options are normalized to zero, $v^{X}_{x0} = v^{Y}_{0y} = 0$
+Note that the deterministic payoffs of the outside options are normalized to zero
+
+$$
+    v^{X}_{x0} = v^{Y}_{0y} = 0.
+$$
  
 
 Finally, the transfers, $t_{xy}$, are determined from a set of market clearing conditions
@@ -30,11 +34,16 @@ $$
     n^{X}_{x} p^{X}_{xy}(v^{X}_{x \cdot}) = n^{Y}_{y} p^{Y}_{xy}(v^{Y}_{\cdot y}),
 $$
 
+where 
 
-where $(n^{X}_{x}, n^{Y}_{y})$ are the marginal distribution of agents of type X and Y.
+$$
+    (n^{X}_{x}, n^{Y}_{y})
+$$
+
+are the marginal distribution of agents of type X and Y.
 
 ## Maximum likelihood estimator
-Let $\theta = (\beta^X, \beta^Y)$ denote the parameters to be estimated. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with a iid normal distributed measurment error, $\varepsilon_{xy} \sim \mathcal{N}(0,\sigma^{2})$  
+Let $\theta = (\beta^X, \beta^Y)$ denote the parameters to be estimated. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with an iid normal distributed measurement error, $\varepsilon_{xy} \sim \mathcal{N}(0,\sigma^{2})$  
 
 $$
     t_{xy}(\theta) = t^{*}_{xy}(\theta) + \varepsilon_{xy}.
@@ -45,7 +54,7 @@ Similar to [Rust (1987)](https://doi.org/10.2307/1911259) the estimation procedu
 The full log-likelihood function is given by the sum of the log-likelihood of transfers, matched agents of type X, matched agents of type Y, unmatched agents of type X, and unmatched agents of type Y
 
 $$
-    \log L(\theta) = \log L_{t}(\theta) + \log L_{m}^{X}(\theta) + \log L_{m}^{Y}(\theta) + \log L_{u}^{X}(\theta) + \log L_{u}^{Y}(\theta).
+    \max_{\theta} \log L(\theta) = \log L_{t}(\theta) + \log L_{m}^{X}(\theta) + \log L_{m}^{Y}(\theta) + \log L_{u}^{X}(\theta) + \log L_{u}^{Y}(\theta).
 $$
 
 The log-likelihood of transfers are given in terms of the squared difference between the model consistent equilibrium transfer and the observed transfer,
