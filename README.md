@@ -32,7 +32,7 @@ $$
 where $(n^{X}_{x}, n^{Y}_{y})$ are the marginal distribution of agents of type X and Y.
 
 
-Let $\theta \in (\beta^X,beta^Y)$ denote the parameters to be estimated. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with a iid normal distributed measurment error, $\varepsilon_{xy} \sim \mathcal{N}(0,\sigma^{2})$  
+Let $\theta = (\beta^X, \beta^Y)$ denote the parameters to be estimated. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with a iid normal distributed measurment error, $\varepsilon_{xy} \sim \mathcal{N}(0,\sigma^{2})$  
 
 $$
     t_{xy}(\theta) = t^{*}_{xy}(\theta) + \varepsilon_{xy}.
