@@ -7,39 +7,34 @@ This package estimate by maximum likelihood a one-to-one matching model with tra
 The model and estimator are implemented in JAX. We leverage the [SQUAREM](https://github.com/esbenscriver/squarem-JAXopt) accelerator to efficiently solve the system of fixed-point equations that characterize the equilibrium transfers. Finally, we rely on the [JAXopt](https://github.com/google/jaxopt) implementation of implicit differentiation when calculating the gradient of the log-likelihood function automatically.
 
 ## Model description
-The matching market consists of agent of type X and Y on both sides of the market. Each agent choose who they want to match with. The match-specific deterministic payoffs of the agents of type X and Y are given as
+The matching market consists of agent of type X and Y on both sides of the market. Each agent choose who they want to match with. The deterministic match-specific payoffs of the agents of type X and Y are given as
 
 $$
-    v^{X}_{xy} = z^{X}_{xy} \beta^{X} + t_{xy}, 
+    v^{X}_{x0} = 0.
 $$
 $$
-    v^{Y}_{xy} = z^{Y}_{xy} \beta^{Y} - t_{xy},
+    v^{X}_{xy} = z^{X}_{xy} \beta^{X} + t_{xy} \; \for y=1,2,...,Y, 
+$$
+$$
+    v^{Y}_{0y} = 0.
+$$
+$$
+    v^{Y}_{xy} = z^{Y}_{xy} \beta^{Y} - t_{xy} \; \for x=1,2,...,X,
 $$
 
 where $t_{xy}$ is a match-specific transfer from agent y to agent x. The corresponding choice probabilities are given by the logit expressions
-
-$$
-    p^{X}_{xy}(v^{X}_{x \cdot}) = \frac{\exp{(v^{X}_{xy})}}{1 + \sum_{j} \exp{(v^{X}_{xj})}},
-$$
-$$
-    p^{Y}_{xy}(v^{Y}_{\cdot y}) = \frac{\exp{(v^{Y}_{xy})}}{1 + \sum_{i} \exp{(v^{Y}_{iy})}},
-$$
-
-where the choice probabilities of the outside options are
-
 $$
     p^{X}_{x0}(v^{X}_{x \cdot}) = \frac{1}{1 + \sum_{j} \exp{(v^{X}_{xj})}},
 $$
 $$
+    p^{X}_{xy}(v^{X}_{x \cdot}) = \frac{\exp{(v^{X}_{xy})}}{1 + \sum_{j} \exp{(v^{X}_{xj})}} \; \for y=1,2,...,Y, 
+$$
+$$
     p^{Y}_{0y}(v^{Y}_{\cdot y}) = \frac{1}{1 + \sum_{i} \exp{(v^{Y}_{iy})}}.
+$$ 
 $$
-
-Note that the deterministic payoffs of being unmatched are normalized to zero for identification
-
+    p^{Y}_{xy}(v^{Y}_{\cdot y}) = \frac{\exp{(v^{Y}_{xy})}}{1 + \sum_{i} \exp{(v^{Y}_{iy})}} \; \for x=1,2,...,X,
 $$
-    v^{X}_{x0} = v^{Y}_{0y} = 0.
-$$
- 
 
 Finally, the transfers, $t_{xy}$, are determined from a set of market clearing conditions
 
@@ -86,10 +81,10 @@ $$
     \log L_{m}^{X}(\theta) = \sum_x^X\left[ n_{x0} \log p^{X}_{x0}(\theta) + \sum_y^Y n_{xy} \log p^{X}_{xy}(\theta) \right],
 $$
 
-the log-likelihood of the matched and unmatched agents of type Y is given as the negative Kullback-Leibler divergence between the observed choices and the model consistent choice probabilities of agents of type Y
+and the log-likelihood of the matched and unmatched agents of type Y is given as the negative Kullback-Leibler divergence between the observed choices and the model consistent choice probabilities of agents of type Y
 
 $$
-    \log L_{m}^{Y}(\theta) = \sum_y^Y\left[ n_{0y} \log p^{Y}_{0y}(\theta) + \sum_x^X n_{xy} \log p^{Y}_{xy}(\theta) \right],
+    \log L_{m}^{Y}(\theta) = \sum_y^Y\left[ n_{0y} \log p^{Y}_{0y}(\theta) + \sum_x^X n_{xy} \log p^{Y}_{xy}(\theta) \right].
 $$
 
 Note that 
