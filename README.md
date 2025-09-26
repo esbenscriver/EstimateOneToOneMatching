@@ -71,31 +71,31 @@ $$
 The full log-likelihood function is given by the sum of the log-likelihood of transfers, matched and unmatched agents of type X, and matched and unmatched agents of type Y
 
 $$
-    \max_{\theta} \log L(\theta) = \log L_{t}(\theta) + \log L_{m}^{X}(\theta) + \log L_{m}^{Y}(\theta).
+    \max_{\theta} \log L(\theta) = \log L_{t}(\theta) + \log L_{m}^{X}(\theta) + \log L_{m}^{Y}(\theta),
 $$
 
-The log-likelihood of transfers are given in terms of the squared difference between the model consistent equilibrium transfer and the observed transfer,
+where the log-likelihood of transfers are given in terms of the squared difference between the model consistent equilibrium transfer and the observed transfer,
 
 $$
-    \log L_t(\theta) = - \tfrac{XY}{2} \log \left(\tfrac{1}{XY} \sum_x^X \sum_y^Y \left(t^{*}_{xy}(\theta) - \tilde{t}_{xy}\right)^2 \right) ,
+    \log L_t(\theta) = - \tfrac{XY}{2} \log \left(\tfrac{1}{XY} \sum_x^X \sum_y^Y \left(t^{*}_{xy}(\theta) - \tilde{t}_{xy}\right)^2 \right),
 $$
 
-the log-likelihood of the matched and unmatched agents of type X is given as
+the log-likelihood of the matched and unmatched agents of type X is given as the negative Kullback-Leibler divergence between the observed choices and the model consistent choice probabilities of agents of type X
 
 $$
     \log L_{m}^{X}(\theta) = \sum_x^X\left[ n_{x0} \log p^{X}_{x0}(\theta) + \sum_y^Y n_{xy} \log p^{X}_{xy}(\theta) \right],
 $$
 
-the log-likelihood of the matched and unmatched agents of type Y is given as
+the log-likelihood of the matched and unmatched agents of type Y is given as the negative Kullback-Leibler divergence between the observed choices and the model consistent choice probabilities of agents of type Y
 
 $$
     \log L_{m}^{Y}(\theta) = \sum_y^Y\left[ n_{0y} \log p^{Y}_{0y}(\theta) + \sum_x^X n_{xy} \log p^{Y}_{xy}(\theta) \right],
 $$
 
-where 
+Note that 
 
 $$
-    \left(p^{X}_{xy}(\theta), p^{Y}_{xy}(\theta), p^{X}_{x0}(\theta), p^{Y}_{0y}(\theta)\right)
+    \left(p^{X}_{xy}(\theta), p^{Y}_{xy}(\theta), p^{X}_{x0}(\theta), p^{Y}_{0y}(\theta)\right),
 $$ 
 
 are the choice probabilities of agents of type X and Y consistent with $t^{*}_{xy}(\theta)$.
