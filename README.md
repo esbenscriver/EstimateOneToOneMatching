@@ -62,13 +62,13 @@ $$
 that can be shown to be a contraction mapping, see [Andersen (2025)](https://arxiv.org/pdf/2409.05518). Hence, iterating on this expression is guaranteed to converge to a unique solution, $t^{*}_{xy}$.
 
 ## Maximum likelihood estimator
-Let $\theta = (\beta^X, \beta^Y)$ denote the vector of parameters to be estimated. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with an iid normal distributed measurement error, $\varepsilon_{xy} \sim \mathcal{N}(0,\sigma^{2})$,  
+Let $\theta = (\beta^X, \beta^Y)$ denote the vector of parameters to be estimated and let $\theta_{0}$ denote the true but unobserved vector of parameter values. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with an iid normal distributed measurement error, $\varepsilon_{xy} \sim \mathcal{N}(0,\sigma^{2})$,  
 
 $$
-    t_{xy}(\theta_{0}) = t^{*}_{xy}(\theta_{0}) + \varepsilon_{xy},
+    t_{xy}(\theta_{0}) = t^{*}_{xy}(\theta_{0}) + \varepsilon_{xy}.
 $$
 
-where $\theta_{0}$ is the vector of the true but unobserved parameters. The full log-likelihood function is given by the sum of the log-likelihood of transfers, matched agents of type X, matched agents of type Y, unmatched agents of type X, and unmatched agents of type Y
+The full log-likelihood function is given by the sum of the log-likelihood of transfers, matched agents of type X, matched agents of type Y, unmatched agents of type X, and unmatched agents of type Y
 
 $$
     \max_{\theta} \log L(\theta) = \log L_{t}(\theta) + \log L_{m}^{X}(\theta) + \log L_{m}^{Y}(\theta) + \log L_{u}^{X}(\theta) + \log L_{u}^{Y}(\theta).
