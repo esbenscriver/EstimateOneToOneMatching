@@ -31,7 +31,7 @@ $$
     v^{X}_{x0} = v^{Y}_{0y} = 0.
 $$
 
-In turn, the corresponding choice probabilities are given as
+In turn, the choice probabilities being unmatched are given as
 
 $$
     p^{X}_{x0}(v^{X}_{x \cdot}) = \frac{1}{1 + \sum_{j} \exp{(v^{X}_{xj})}},
