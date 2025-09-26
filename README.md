@@ -65,43 +65,31 @@ that can be shown to be a contraction mapping, see [Andersen (2025)](https://arx
 Let $\theta = (\beta^X, \beta^Y)$ denote the vector of parameters to be estimated and let $\theta_{0}$ denote the true but unobserved vector of parameter values. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with an iid normal distributed measurement error, $\varepsilon_{xy} \sim \mathcal{N}(0,\sigma^{2})$,  
 
 $$
-    t_{xy}(\theta_{0}) = t^{*}_{xy}(\theta_{0}) + \varepsilon_{xy}.
+    \tilde{t}_{xy} = t^{*}_{xy}(\theta_{0}) + \varepsilon_{xy}.
 $$
 
-The full log-likelihood function is given by the sum of the log-likelihood of transfers, matched agents of type X, matched agents of type Y, unmatched agents of type X, and unmatched agents of type Y
+The full log-likelihood function is given by the sum of the log-likelihood of transfers, matched and unmatched agents of type X, and matched and unmatched agents of type Y
 
 $$
-    \max_{\theta} \log L(\theta) = \log L_{t}(\theta) + \log L_{m}^{X}(\theta) + \log L_{m}^{Y}(\theta) + \log L_{u}^{X}(\theta) + \log L_{u}^{Y}(\theta).
+    \max_{\theta} \log L(\theta) = \log L_{t}(\theta) + \log L_{m}^{X}(\theta) + \log L_{m}^{Y}(\theta).
 $$
 
 The log-likelihood of transfers are given in terms of the squared difference between the model consistent equilibrium transfer and the observed transfer,
 
 $$
-    \log L_t(\theta) = - \tfrac{XY}{2} \log \left(\tfrac{1}{XY} \sum_x^X \sum_y^Y \left(t^{*}_{xy}(\theta) - t_{xy}(\theta_{0})\right)^2 \right) ,
+    \log L_t(\theta) = - \tfrac{XY}{2} \log \left(\tfrac{1}{XY} \sum_x^X \sum_y^Y \left(t^{*}_{xy}(\theta) - \tilde{t}_{xy}\right)^2 \right) ,
 $$
 
-the log-likelihood of the matched agents of type X is given as
+the log-likelihood of the matched and unmatched agents of type X is given as
 
 $$
-    \log L_{m}^{X}(\theta) = \sum_x^X \sum_y^Y n_{xy} \log p^{X}_{xy}(\theta),
+    \log L_{m}^{X}(\theta) = \sum_x^X n_{x0} \log p^{X}_{x0}(\theta) + \sum_y^Y n_{xy} \log p^{X}_{xy}(\theta),
 $$
 
-the log-likelihood of the matched agents of type Y is given as
+the log-likelihood of the matched and unmatched agents of type Y is given as
 
 $$
-    \log L_{m}^{Y}(\theta) = \sum_x^X \sum_y^Y n_{xy} \log p^{Y}_{xy}(\theta),
-$$
-
-the log-likelihood of the unmatched agents of type X is given as
-
-$$
-    \log L_{u}^{X}(\theta) = \sum_x^X n_{x0} \log p^{X}_{x0}(\theta),
-$$
-
-the log-likelihood of the unmatched agents of type Y is given as
-
-$$
-    \log L_{u}^{Y}(\theta) = \sum_y^Y n_{0y} \log p^{Y}_{0y}(\theta),
+    \log L_{m}^{Y}(\theta) = \sum_y^Y n_{0y} \log p^{Y}_{0y}(\theta) + \sum_x^X n_{xy} \log p^{Y}_{xy}(\theta),
 $$
 
 where 
