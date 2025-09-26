@@ -31,7 +31,7 @@ $$
     v^{X}_{x0} = v^{Y}_{0y} = 0.
 $$
 
-In turn, the choice probabilities being unmatched are given as
+In turn, the choice probabilities of being unmatched are given as
 
 $$
     p^{X}_{x0}(v^{X}_{x \cdot}) = \frac{1}{1 + \sum_{j} \exp{(v^{X}_{xj})}},
@@ -59,7 +59,7 @@ $$
     t_{xy} = t_{xy} + \tfrac{1}{2} \log \left( \frac{ n^{Y}_{y} p^{Y}_{xy} } { n^{X}_{x} p^{X}_{xy} } \right),
 $$
 
-that can be shown to be a contraction mapping, see [Andersen (2025)](https://arxiv.org/pdf/2409.05518). Hence, iterating on this expression is guaranteed to converge to a unique solution, $t^{*}_{xy}$.
+that can be shown to be a contraction mapping, see [Andersen (2025)](https://arxiv.org/pdf/2409.05518). Hence, iterating on this expression is guaranteed to converge to an unique solution, $t^{*}_{xy}$.
 
 ## Maximum likelihood estimator
 Let $\theta = (\beta^X, \beta^Y)$ denote the vector of parameters to be estimated and let $\theta_{0}$ denote the true but unobserved vector of parameter values. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with an iid normal distributed measurement error, $\varepsilon_{xy} \sim \mathcal{N}(0,\sigma^{2})$,  
