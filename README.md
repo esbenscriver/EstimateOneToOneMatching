@@ -83,13 +83,13 @@ $$
 the log-likelihood of the matched and unmatched agents of type X is given as
 
 $$
-    \log L_{m}^{X}(\theta) = \sum_x^X n_{x0} \log p^{X}_{x0}(\theta) + \sum_y^Y n_{xy} \log p^{X}_{xy}(\theta),
+    \log L_{m}^{X}(\theta) = \sum_x^X\left\{ n_{x0} \log p^{X}_{x0}(\theta) + \sum_y^Y n_{xy} \log p^{X}_{xy}(\theta) \right\},
 $$
 
 the log-likelihood of the matched and unmatched agents of type Y is given as
 
 $$
-    \log L_{m}^{Y}(\theta) = \sum_y^Y n_{0y} \log p^{Y}_{0y}(\theta) + \sum_x^X n_{xy} \log p^{Y}_{xy}(\theta),
+    \log L_{m}^{Y}(\theta) = \sum_y^Y\left\{ n_{0y} \log p^{Y}_{0y}(\theta) + \sum_x^X n_{xy} \log p^{Y}_{xy}(\theta) \right\},
 $$
 
 where 
