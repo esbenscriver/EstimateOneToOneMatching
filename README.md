@@ -68,7 +68,7 @@ $$
     t_{xy_{0}}(\theta_{0}) = t^{*}_{xy}(\theta_{0}) + \varepsilon_{xy}.
 $$
 
-where $\theta_{0}$ is the vector of the true but unobserved vector of parameters. The full log-likelihood function is given by the sum of the log-likelihood of transfers, matched agents of type X, matched agents of type Y, unmatched agents of type X, and unmatched agents of type Y
+where $\theta_{0}$ is the vector of the true but unobserved parameters. The full log-likelihood function is given by the sum of the log-likelihood of transfers, matched agents of type X, matched agents of type Y, unmatched agents of type X, and unmatched agents of type Y
 
 $$
     \max_{\theta} \log L(\theta) = \log L_{t}(\theta) + \log L_{m}^{X}(\theta) + \log L_{m}^{Y}(\theta) + \log L_{u}^{X}(\theta) + \log L_{u}^{Y}(\theta).
