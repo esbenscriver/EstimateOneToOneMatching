@@ -56,7 +56,7 @@ $$
 are the marginal distribution of agents of type X and Y. The distribution of equilibrium transfers can be determined from a system of fixed-point equations
 
 $$
-    t_{xy} = t_{xy} + \tfrac{1}{2} \log \left( \frac{ n^{Y}_{y} p^{Y}_{xy} } { n^{Y}_{y} p^{Y}_{xy} } \right),
+    t_{xy} = t_{xy} + \tfrac{1}{2} \log \left( \frac{ n^{Y}_{y} p^{Y}_{xy} } { n^{X}_{x} p^{X}_{xy} } \right),
 $$
 
 that can be shown to be a contraction mapping, see [Andersen (2025)](https://arxiv.org/pdf/2409.05518). Hence, iterating on this expression is guaranteed to converge to a unique solution, $t^{*}_{xy}$.
