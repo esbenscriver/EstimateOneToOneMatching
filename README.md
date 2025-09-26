@@ -13,27 +13,28 @@ $$
     v^{X}_{x0} = 0.
 $$
 $$
-    v^{X}_{xy} = z^{X}_{xy} \beta^{X} + t_{xy} \; \for y=1,2,...,Y, 
+    v^{X}_{xy} = z^{X}_{xy} \beta^{X} + t_{xy} \text{ for } y=1,2,...,Y, 
 $$
 $$
     v^{Y}_{0y} = 0.
 $$
 $$
-    v^{Y}_{xy} = z^{Y}_{xy} \beta^{Y} - t_{xy} \; \for x=1,2,...,X,
+    v^{Y}_{xy} = z^{Y}_{xy} \beta^{Y} - t_{xy} \text{ for } x=1,2,...,X,
 $$
 
 where $t_{xy}$ is a match-specific transfer from agent y to agent x. The corresponding choice probabilities are given by the logit expressions
+
 $$
     p^{X}_{x0}(v^{X}_{x \cdot}) = \frac{1}{1 + \sum_{j} \exp{(v^{X}_{xj})}},
 $$
 $$
-    p^{X}_{xy}(v^{X}_{x \cdot}) = \frac{\exp{(v^{X}_{xy})}}{1 + \sum_{j} \exp{(v^{X}_{xj})}} \; \for y=1,2,...,Y, 
+    p^{X}_{xy}(v^{X}_{x \cdot}) = \frac{\exp{(v^{X}_{xy})}}{1 + \sum_{j} \exp{(v^{X}_{xj})}} \text{ for } y=1,2,...,Y, 
 $$
 $$
     p^{Y}_{0y}(v^{Y}_{\cdot y}) = \frac{1}{1 + \sum_{i} \exp{(v^{Y}_{iy})}}.
 $$ 
 $$
-    p^{Y}_{xy}(v^{Y}_{\cdot y}) = \frac{\exp{(v^{Y}_{xy})}}{1 + \sum_{i} \exp{(v^{Y}_{iy})}} \; \for x=1,2,...,X,
+    p^{Y}_{xy}(v^{Y}_{\cdot y}) = \frac{\exp{(v^{Y}_{xy})}}{1 + \sum_{i} \exp{(v^{Y}_{iy})}} \text{ for } x=1,2,...,X,
 $$
 
 Finally, the transfers, $t_{xy}$, are determined from a set of market clearing conditions
