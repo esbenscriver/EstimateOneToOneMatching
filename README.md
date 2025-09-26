@@ -50,7 +50,7 @@ $$
 where 
 
 $$
-    (n^{X}_{x}, n^{Y}_{y})
+    (n^{X}_{x}, n^{Y}_{y}),
 $$
 
 are the marginal distribution of agents of type X and Y. The distribution of equilibrium transfers can be determined from a system of fixed-point equations
