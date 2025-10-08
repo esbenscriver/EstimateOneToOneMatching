@@ -121,9 +121,7 @@ class MatchingModel(Pytree, mutable=False):
         v_Y = jax.lax.sub(utility_Y, transfer) / scale_Y
         return self.ChoiceProbabilities(v_Y, axis=0)
 
-    def Demand_X(
-            self, transfer: Array, utility_X: Array, scale_X: Array
-        ) -> Array:
+    def Demand_X(self, transfer: Array, utility_X: Array, scale_X: Array) -> Array:
         """Computes agents of type X's demand for agents of type Y
 
         Args:
@@ -175,8 +173,8 @@ class MatchingModel(Pytree, mutable=False):
         scale_X, scale_Y = self.extract_scale_parameters(params)
 
         # Calculate demand for both sides of the market
-        demand_X = self.Demand_X(t_initial, utility_X, scale_X)  # type X's demand for type Y
-        demand_Y = self.Demand_Y(t_initial, utility_Y, scale_Y)  # type Y's demand for type X
+        demand_X = self.Demand_X(t_initial, utility_X, scale_X)
+        demand_Y = self.Demand_Y(t_initial, utility_Y, scale_Y)
 
         adjustment = scale_X * scale_Y / (scale_X + scale_Y)
 
@@ -218,17 +216,17 @@ class MatchingModel(Pytree, mutable=False):
             verbose=verbose,
         ).run(transfer_init, utility_X, utility_Y, params)
         return result.params
-    
+
     def extract_scale_parameters(self, params: Array) -> tuple[Array, Array]:
         """Extract the scale parameters from params
-        
+
         Args:
             params (Array): vector of model parameters
 
         returns:
             scale_X (Array):
                 scale parameter of agents of type X
-            scale_Y (Array): 
+            scale_Y (Array):
                 scale parameter of agents of type Y
         """
         return jnp.exp(params[-2]), jnp.exp(params[-1])
@@ -253,7 +251,7 @@ class MatchingModel(Pytree, mutable=False):
         utility_X = self.Utility(self.covariates_X, beta_X)
         utility_Y = self.Utility(self.covariates_Y, beta_Y)
         return utility_X, utility_Y
-    
+
     def neg_log_likelihood(self, params: Array, data: Data) -> Array:
         """Computes the negative log-likelihood function
 
@@ -325,10 +323,10 @@ class MatchingModel(Pytree, mutable=False):
             verbose=verbose,
         ).run(guess, data)
         return result.params
-    
+
     def predict(self, params: Array) -> Data:
         """Predict transfers and number of matched and unmatched agents
-        
+
         Args:
             params (Array): estimated parameters
 

@@ -20,7 +20,9 @@ number_of_parameters_X, number_of_parameters_Y = 2, 3
 
 parameter_names_X = [f"beta_X ({x})" for x in range(number_of_parameters_X)]
 parameter_names_Y = [f"beta_Y ({y})" for y in range(number_of_parameters_Y)]
-parameter_names = parameter_names_X + parameter_names_Y + ["log(scale_X)", "log(scale_Y)"]
+parameter_names = (
+    parameter_names_X + parameter_names_Y + ["log(scale_X)", "log(scale_Y)"]
+)
 
 # Simulate covariates of the agents' utility function
 covariates_X = -random.uniform(
@@ -44,14 +46,17 @@ model = MatchingModel(
 
 # Simulate parameters of the agents' utility function
 parameters = random.uniform(
-    key=random.PRNGKey(211), shape=(number_of_parameters_X + number_of_parameters_Y + 2,)
+    key=random.PRNGKey(211),
+    shape=(number_of_parameters_X + number_of_parameters_Y + 2,),
 )
 
 solution = model.predict(params=parameters)
 
 # Simulate data
 mu, sigma = 0.0, 1.0
-measurement_errors = mu + sigma * random.normal(random.PRNGKey(311), shape=solution.transfer.shape)
+measurement_errors = mu + sigma * random.normal(
+    random.PRNGKey(311), shape=solution.transfer.shape
+)
 
 data = Data(
     transfer=solution.transfer + measurement_errors,
@@ -67,11 +72,12 @@ parameter_estimates = model.fit(guess, data, verbose=True)
 log_lik = -model.neg_log_likelihood(parameter_estimates, data)
 
 table_estimates = tabulate(
-        list(zip(parameter_names, parameters, parameter_estimates)), 
-        headers=["names","True parameters", "Estimated parameters"], tablefmt="grid"
+    list(zip(parameter_names, parameters, parameter_estimates)),
+    headers=["names", "True parameters", "Estimated parameters"],
+    tablefmt="grid",
 )
 
 print(f"\n{table_estimates}")
 print(f"log-likelihood value: {log_lik:.4f}\n")
 
-predictions=model.predict(params=parameter_estimates)
+predictions = model.predict(params=parameter_estimates)
