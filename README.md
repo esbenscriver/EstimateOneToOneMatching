@@ -74,10 +74,10 @@ $$
     \hat{\varepsilon}_{xy}(\theta) = t^{*}_{xy}(\theta) - \tilde{t}_{xy},
 $$
 $$
-    \hat{\mu}(\theta) = \tfrac{1}{XY} \sum_x \sum_y \hat{\varepsilon}_{xy}(\theta),
+    \hat{\mu}(\theta) = \tfrac{1}{XY} \sum_{x}^{X} \sum_{y}^{Y} \hat{\varepsilon}_{xy}(\theta),
 $$
 $$
-    \hat{\sigma}^{2}(\theta) = \tfrac{1}{XY} \sum_x^X \sum_y^Y \left(\hat{\varepsilon}_{xy}(\theta) - \hat{\mu}(\theta) \right)^2.
+    \hat{\sigma}^{2}(\theta) = \tfrac{1}{XY} \sum_{x}^{X} \sum_{y}^{Y} \left(\hat{\varepsilon}_{xy}(\theta) - \hat{\mu}(\theta) \right)^2.
 $$
 
 The full log-likelihood function is given by the sum of the log-likelihood of transfers, matched and unmatched agents of type X, and matched and unmatched agents of type Y
@@ -95,13 +95,13 @@ $$
 the log-likelihood of the matched and unmatched agents of type X is given as the negative Kullback-Leibler divergence between the observed choices and the model consistent choice probabilities of agents of type X
 
 $$
-    \log L_{m}^{X}(\theta) = \sum_x^X\left[ n_{x0} \log p^{X}_{x0}(\theta) + \sum_y^Y n_{xy} \log p^{X}_{xy}(\theta) \right],
+    \log L_{m}^{X}(\theta) = \sum_{x}^{X}\left[ n_{x0} \log p^{X}_{x0}(\theta) + \sum_{y}^{Y} n_{xy} \log p^{X}_{xy}(\theta) \right],
 $$
 
 and the log-likelihood of the matched and unmatched agents of type Y is given as the negative Kullback-Leibler divergence between the observed choices and the model consistent choice probabilities of agents of type Y
 
 $$
-    \log L_{m}^{Y}(\theta) = \sum_y^Y\left[ n_{0y} \log p^{Y}_{0y}(\theta) + \sum_x^X n_{xy} \log p^{Y}_{xy}(\theta) \right].
+    \log L_{m}^{Y}(\theta) = \sum_{y}^{Y}\left[ n_{0y} \log p^{Y}_{0y}(\theta) + \sum_{x}^{X} n_{xy} \log p^{Y}_{xy}(\theta) \right].
 $$
 
 Note that 
