@@ -105,4 +105,4 @@ $$
 $$
 
 
-Similar to [Rust (1987)](https://doi.org/10.2307/1911259) the estimation procedures via a nested fixed-point algorithm with an outer loop that search over different values of $\theta$ to maximize the log-likelihood function, and an inner loop that for $\theta$ solves for the equilibrium transfer, $t^{*}_{xy}(\theta)$, and evaluates the full log-likelihood function, $\log L(\theta)$.
+Similar to [Rust (1987)](https://doi.org/10.2307/1911259) the estimation procedures via a nested fixed-point algorithm with an outer loop that search over different values of $\theta$ to maximize the full log-likelihood function, $\log L(\theta)$, and an inner loop that for $\theta$ solves for the equilibrium transfer, $t^{*}_{xy}(\theta)$.
