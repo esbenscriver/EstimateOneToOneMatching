@@ -70,7 +70,7 @@ class MatchingModel(Pytree, mutable=False):
         """
         # Center by subtracting max for numerical stability
         v_max = jnp.max(v, axis=axis, keepdims=True)
-        
+
         expV_inside = jnp.exp(v - v_max)
         expV_outside = jnp.exp(-v_max)
 
