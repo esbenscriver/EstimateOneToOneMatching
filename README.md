@@ -86,7 +86,7 @@ $$
     \max_{\theta} \log L(\theta) = \log L_{t}(\theta) + \log L_{m}^{X}(\theta) + \log L_{m}^{Y}(\theta),
 $$
 
-where the log-likelihood of transfers are given in terms of the squared difference between the model consistent equilibrium transfer and the observed transfer,
+where the log-likelihood of transfers are given in terms of the variance of the measurement errors,
 
 $$
     \log L_t(\theta) = - \tfrac{XY}{2} \log \hat{\sigma}^{2}(\theta),
