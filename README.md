@@ -25,7 +25,7 @@ $$
     p^{Y}_{xy}(v^{Y}_{\cdot y}) = \frac{\exp{(v^{Y}_{xy}/\sigma^{Y})}}{1 + \sum_{i} \exp{(v^{Y}_{iy}/\sigma^{Y})}},
 $$
 
-Note that for identification the deterministic payoffs of being unmatched is normalized to zero
+where $\sigma^{X}$ and $\sigma^{Y}$ are scale parameters. Note that for identification the deterministic payoffs of being unmatched is normalized to zero
 
 $$
     v^{X}_{x0} = v^{Y}_{0y} = 0.
