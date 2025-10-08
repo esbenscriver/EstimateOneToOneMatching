@@ -68,14 +68,15 @@ class MatchingModel(Pytree, mutable=False):
         P_outside (Array):
             choice probabilities of outside option.
         """
-        # v_max = jnp.max(v, axis=axis, keepdims=True)
+        # Center by subtracting max for numerical stability
+        v_max = jnp.max(v, axis=axis, keepdims=True)
+        
+        expV_inside = jnp.exp(v - v_max)
+        expV_outside = jnp.exp(-v_max)
 
-        # exponentiated centered payoffs of inside options
-        nominator = jnp.exp(v)
-
-        # denominator of choice probabilities
-        denominator = 1 + jnp.sum(nominator, axis=axis, keepdims=True)
-        return nominator / denominator, 1 / denominator
+        # denominator of choice probabilities (includes outside option with payoff 0)
+        denominator = expV_outside + jnp.sum(expV_inside, axis=axis, keepdims=True)
+        return expV_inside / denominator, expV_outside / denominator
 
     def Utility(self, covariates: Array, parameters: Array) -> Array:
         """Computes match-specific utilities
@@ -166,6 +167,7 @@ class MatchingModel(Pytree, mutable=False):
             t_initial (Array): initial transfers
             utility_X (Array): utility of agents of type X
             utility_Y (Array): utility of agents of type Y
+            params (Array): vector of model parameters
 
         Returns:
             t_updated (Array): updated transfers

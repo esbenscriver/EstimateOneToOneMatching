@@ -75,6 +75,7 @@ table_estimates = tabulate(
     list(zip(parameter_names, parameters, parameter_estimates)),
     headers=["names", "True parameters", "Estimated parameters"],
     tablefmt="grid",
+    floatfmt=".4f",
 )
 
 print(f"\n{table_estimates}")
