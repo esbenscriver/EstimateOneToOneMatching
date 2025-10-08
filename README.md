@@ -34,7 +34,7 @@ $$
 In turn, the choice probabilities of being unmatched are given as
 
 $$
-    p^{X}_{x0}(v^{X}_{x \cdot}) = \frac{1}{1 + \sum_{j} \exp{(v^{X}_{xj}\sigma^{X})}},
+    p^{X}_{x0}(v^{X}_{x \cdot}) = \frac{1}{1 + \sum_{j} \exp{(v^{X}_{xj}/\sigma^{X})}},
 $$
 
 $$
