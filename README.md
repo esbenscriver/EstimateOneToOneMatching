@@ -92,13 +92,13 @@ $$
     \log L_t(\theta) = - \tfrac{XY}{2} \log \hat{\sigma}^{2}(\theta),
 $$
 
-the log-likelihood of the matched and unmatched agents of type X is given as the negative Kullback-Leibler divergence between the observed choices, $(m_{x0},m_{xy})$, and the model consistent choice probabilities of agents of type X, $(p^{X}_{x0},p^{X}_{xy})$,
+the log-likelihood of the matched and unmatched agents of type X is given as the negative Kullback-Leibler divergence between the observed choices, $(m_{x0},m_{xy})$, and the model consistent choice probabilities of agents of type X
 
 $$
     \log L_{m}^{X}(\theta) = \sum_{x}^{X}\left[ m_{x0} \log p^{X}_{x0}(\theta) + \sum_{y}^{Y} m_{xy} \log p^{X}_{xy}(\theta) \right],
 $$
 
-and the log-likelihood of the matched and unmatched agents of type Y is given as the negative Kullback-Leibler divergence between the observed choices, $(m_{0y},m_{xy})$, and the model consistent choice probabilities of agents of type Y, $(p^{Y}_{0y},p^{Y}_{xy})$,
+and the log-likelihood of the matched and unmatched agents of type Y is given as the negative Kullback-Leibler divergence between the observed choices, $(m_{0y},m_{xy})$, and the model consistent choice probabilities of agents of type Y
 
 $$
     \log L_{m}^{Y}(\theta) = \sum_{y}^{Y}\left[ m_{0y} \log p^{Y}_{0y}(\theta) + \sum_{x}^{X} m_{xy} \log p^{Y}_{xy}(\theta) \right].
