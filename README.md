@@ -19,7 +19,7 @@ $$
 where $t_{xy}$ is a match-specific transfer from agent y to agent x. The corresponding choice probabilities are given by the logit expressions
 
 $$
-    p^{X}_{xy}(v^{X}_{x \cdot}) = \frac{\exp{(v^{X}_{xy}/\sigma^{X})}}{1 + \sum_{j} \exp{(v^{X}_{xj}\sigma^{X})}}, 
+    p^{X}_{xy}(v^{X}_{x \cdot}) = \frac{\exp{(v^{X}_{xy}/\sigma^{X})}}{1 + \sum_{j} \exp{(v^{X}_{xj}/\sigma^{X})}}, 
 $$
 $$
     p^{Y}_{xy}(v^{Y}_{\cdot y}) = \frac{\exp{(v^{Y}_{xy}/\sigma^{Y})}}{1 + \sum_{i} \exp{(v^{Y}_{iy}/\sigma^{Y})}},
