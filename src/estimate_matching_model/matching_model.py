@@ -22,7 +22,7 @@ SolverTypes = (
 
 
 @dataclass
-class ObservedData(Pytree, mutable=False):
+class Data(Pytree, mutable=False):
     """Observed data used for maximum likelihood estimation
 
     Attributes:
@@ -90,63 +90,69 @@ class MatchingModel(Pytree, mutable=False):
         return jnp.einsum("ijk, k -> ij", covariates, parameters)
 
     def ChoiceProbabilities_X(
-        self, transfer: Array, utility_X: Array
+        self, transfer: Array, utility_X: Array, scale_X: Array
     ) -> tuple[Array, Array]:
         """Computes choice probabilities of agents of type X
 
         Args:
             transfer (Array): match-specific transfers
             utility_X (Array): match-specific utilities for agents of type X
+            scale_X (Array): scale parameter of agents of type X
 
         Returns:
             ChoiceProbabilities (Array): match-specific choice probabilities for agents of type X
         """
-        v_X = jax.lax.add(utility_X, transfer)
+        v_X = jax.lax.add(utility_X, transfer) / scale_X
         return self.ChoiceProbabilities(v_X, axis=1)
 
     def ChoiceProbabilities_Y(
-        self, transfer: Array, utility_Y: Array
+        self, transfer: Array, utility_Y: Array, scale_Y: Array
     ) -> tuple[Array, Array]:
         """Computes choice probabilities of agents of type Y
 
         Args:
             transfer (Array): match-specific transfers
             utility_Y (Array): match-specific utilities for agents of type Y
+            scale_Y (Array): scale parameter of agents of type Y
 
         Returns:
             ChoiceProbabilities (Array): match-specific choice probabilities for agents of type Y
         """
-        v_Y = jax.lax.sub(utility_Y, transfer)
+        v_Y = jax.lax.sub(utility_Y, transfer) / scale_Y
         return self.ChoiceProbabilities(v_Y, axis=0)
 
-    def Demand_X(self, transfer: Array, utility_X: Array) -> Array:
+    def Demand_X(
+            self, transfer: Array, utility_X: Array, scale_X: Array
+        ) -> Array:
         """Computes agents of type X's demand for agents of type Y
 
         Args:
             transfer (Array): match-specific transfers
             utility_X (Array): match-specific utilities
+            scale_X (Array): scale parameter of agents of type X
 
         Returns:
             demand (Array): demand for inside options
         """
         return (
             self.marginal_distribution_X
-            * self.ChoiceProbabilities_X(transfer, utility_X)[0]
+            * self.ChoiceProbabilities_X(transfer, utility_X, scale_X)[0]
         )
 
-    def Demand_Y(self, transfer: Array, utility_Y: Array) -> Array:
+    def Demand_Y(self, transfer: Array, utility_Y: Array, scale_Y: Array) -> Array:
         """Computes agents of type Y's demand for agents of type X
 
         Args:
             transfer (Array): match-specific transfers
             utility_Y (Array): match-specific utilities
+            scale_Y (Array): scale parameter of agents of type Y
 
         Returns:
             demand (Array): demand for inside options
         """
         return (
             self.marginal_distribution_Y
-            * self.ChoiceProbabilities_Y(transfer, utility_Y)[0]
+            * self.ChoiceProbabilities_Y(transfer, utility_Y, scale_Y)[0]
         )
 
     def UpdateTransfers(
@@ -154,6 +160,7 @@ class MatchingModel(Pytree, mutable=False):
         t_initial: Array,
         utility_X: Array,
         utility_Y: Array,
+        params: Array,
     ) -> Array:
         """Updates fixed point equation for transfers
 
@@ -165,18 +172,23 @@ class MatchingModel(Pytree, mutable=False):
         Returns:
             t_updated (Array): updated transfers
         """
+        scale_X, scale_Y = self.extract_scale_parameters(params)
+
         # Calculate demand for both sides of the market
-        demand_X = self.Demand_X(t_initial, utility_X)  # type X's demand for type Y
-        demand_Y = self.Demand_Y(t_initial, utility_Y)  # type Y's demand for type X
+        demand_X = self.Demand_X(t_initial, utility_X, scale_X)  # type X's demand for type Y
+        demand_Y = self.Demand_Y(t_initial, utility_Y, scale_Y)  # type Y's demand for type X
+
+        adjustment = scale_X * scale_Y / (scale_X + scale_Y)
 
         # Update transfer
-        t_updated = t_initial + 1 / 2 * jnp.log(demand_Y / demand_X)
+        t_updated = t_initial + adjustment * jnp.log(demand_Y / demand_X)
         return t_updated
 
     def solve(
         self,
         utility_X: Array,
         utility_Y: Array,
+        params: Array,
         fixed_point_solver: SolverTypes = SquaremAcceleration,
         tol: float = 1e-10,
         maxiter: int = 1000,
@@ -204,8 +216,22 @@ class MatchingModel(Pytree, mutable=False):
             maxiter=maxiter,
             tol=tol,
             verbose=verbose,
-        ).run(transfer_init, utility_X, utility_Y)
+        ).run(transfer_init, utility_X, utility_Y, params)
         return result.params
+    
+    def extract_scale_parameters(self, params: Array) -> tuple[Array, Array]:
+        """Extract the scale parameters from params
+        
+        Args:
+            params (Array): vector of model parameters
+
+        returns:
+            scale_X (Array):
+                scale parameter of agents of type X
+            scale_Y (Array): 
+                scale parameter of agents of type Y
+        """
+        return jnp.exp(params[-2]), jnp.exp(params[-1])
 
     def Utilities_of_agents(self, params: Array) -> tuple[Array, Array]:
         """Compute match-specific utilities for agents of type X and Y
@@ -221,29 +247,33 @@ class MatchingModel(Pytree, mutable=False):
         """
         number_of_covariates_X = self.covariates_X.shape[-1]
 
-        parameters_X = params[:number_of_covariates_X]
-        parameters_Y = params[number_of_covariates_X:]
+        beta_X = params[:number_of_covariates_X]
+        beta_Y = params[number_of_covariates_X:-2]
 
-        utility_X = self.Utility(self.covariates_X, parameters_X)
-        utility_Y = self.Utility(self.covariates_Y, parameters_Y)
+        utility_X = self.Utility(self.covariates_X, beta_X)
+        utility_Y = self.Utility(self.covariates_Y, beta_Y)
         return utility_X, utility_Y
-
-    def neg_log_likelihood(self, params: Array, data: ObservedData) -> Array:
+    
+    def neg_log_likelihood(self, params: Array, data: Data) -> Array:
         """Computes the negative log-likelihood function
 
         Args:
             params (Array): parameters of agents' utility functions
-            data (ObservedData): observed transfers and numbers of matched and unmatched agents
+            data (Data): observed transfers and numbers of matched and unmatched agents
 
         Returns:
             neg_log_lik (Array): negative log-likelihood value
         """
         utility_X, utility_Y = self.Utilities_of_agents(params)
 
-        transfer = self.solve(utility_X, utility_Y)
+        transfer = self.solve(utility_X, utility_Y, params)
 
-        pX_xy, pX_x0 = self.ChoiceProbabilities_X(transfer, utility_X)
-        pY_xy, pY_0y = self.ChoiceProbabilities_Y(transfer, utility_Y)
+        scale_X, scale_Y = self.extract_scale_parameters(params)
+
+        pX_xy, pX_x0 = self.ChoiceProbabilities_X(transfer, utility_X, scale_X)
+        pY_xy, pY_0y = self.ChoiceProbabilities_Y(transfer, utility_Y, scale_Y)
+
+        variance_errors = jnp.var(transfer - data.transfer)
 
         number_of_observations = (
             2 * jnp.sum(data.matched)
@@ -251,19 +281,15 @@ class MatchingModel(Pytree, mutable=False):
             + jnp.sum(data.unmatched_Y)
         )
 
-        log_lik_transfer = -jnp.log(jnp.mean((transfer - data.transfer) ** 2)) * (
-            transfer.size / 2
-        )
-        log_lik_matched_X = jnp.nansum(data.matched * jnp.log(pX_xy))
-        log_lik_matched_Y = jnp.nansum(data.matched * jnp.log(pY_xy))
+        log_lik_transfer = -jnp.log(variance_errors) * (variance_errors.size / 2)
+        log_lik_matched = jnp.nansum(data.matched * (jnp.log(pX_xy) + jnp.log(pY_xy)))
         log_lik_unmatched_X = jnp.nansum(data.unmatched_X * jnp.log(pX_x0))
         log_lik_unmatched_Y = jnp.nansum(data.unmatched_Y * jnp.log(pY_0y))
 
         neg_log_lik = (
             -(
                 log_lik_transfer
-                + log_lik_matched_X
-                + log_lik_matched_Y
+                + log_lik_matched
                 + log_lik_unmatched_X
                 + log_lik_unmatched_Y
             )
@@ -274,7 +300,7 @@ class MatchingModel(Pytree, mutable=False):
     def fit(
         self,
         guess: Array,
-        data: ObservedData,
+        data: Data,
         tol: float = 1e-8,
         maxiter: int = 100,
         verbose: bool | int = True,
@@ -283,7 +309,7 @@ class MatchingModel(Pytree, mutable=False):
 
         Args:
             guess (Array): initial parameter guess
-            data (ObservedData): observed transfers and numbers of matched and unmatched agents
+            data (Data): observed transfers and numbers of matched and unmatched agents
             tol (float): tolerance of the stopping criterion
             maxiter (int): maximum number of proximal gradient descent iterations
             verbose (bool): if set to True or 1 prints the information at each step of the solver, if set to 2, print also the information of the linesearch
@@ -299,3 +325,29 @@ class MatchingModel(Pytree, mutable=False):
             verbose=verbose,
         ).run(guess, data)
         return result.params
+    
+    def predict(self, params: Array) -> Data:
+        """Predict transfers and number of matched and unmatched agents
+        
+        Args:
+            params (Array): estimated parameters
+
+        Returns:
+            predictions (Data): preditcted transfers and number of matched and unmatched agents
+        """
+
+        utility_X, utility_Y = self.Utilities_of_agents(params)
+
+        transfer = self.solve(utility_X, utility_Y, params)
+
+        scale_X, scale_Y = self.extract_scale_parameters(params)
+
+        pX_xy, pX_x0 = self.ChoiceProbabilities_X(transfer, utility_X, scale_X)
+        pY_0y = self.ChoiceProbabilities_Y(transfer, utility_Y, scale_Y)[1]
+
+        return Data(
+            transfer=transfer,
+            matched=pX_xy * self.marginal_distribution_X,
+            unmatched_X=pX_x0 * self.marginal_distribution_X,
+            unmatched_Y=pY_0y * self.marginal_distribution_Y,
+        )
