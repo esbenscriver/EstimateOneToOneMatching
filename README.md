@@ -71,7 +71,7 @@ $$
 We will use the well known fact that $\mu$ and $\sigma^{2}$ can be concentrated out of the log-likelihood function
 
 $$
-    \hat{\varepsilon}_{xy}(\theta) = t^{*}_{xy}(\theta) - \tilde{t}_{xy},
+    \hat{\varepsilon}_{xy}(\theta) = \tilde{t}_{xy} - t^{*}_{xy}(\theta),
 $$
 $$
     \hat{\mu}(\theta) = \tfrac{1}{XY} \sum_{x}^{X} \sum_{y}^{Y} \hat{\varepsilon}_{xy}(\theta),
