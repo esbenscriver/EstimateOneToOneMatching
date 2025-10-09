@@ -1,13 +1,7 @@
-"""
-JAX implementation of fixed-point iteration algoritm to solve and one-to-one matching model with transferable utility
-
-Reference:
-Esben Scriver Andersen, Note on solving one-to-one matching models with linear transferable utility, 2025 (https://arxiv.org/pdf/2409.05518)
-"""
-
 import jax
 import jax.numpy as jnp
 from jax import Array
+from jax.ops import segment_max, segment_sum
 
 # import simple_pytree (used to store variables)
 from simple_pytree import Pytree, dataclass
@@ -17,6 +11,7 @@ from estimate_matching_model.dataclass_pytree import Data, SolverTypes
 from jaxopt import LBFGS
 from squarem_jaxopt import SquaremAcceleration
 
+# from functools import partial
 
 @dataclass
 class MatchingModel(Pytree, mutable=False):
@@ -25,6 +20,10 @@ class MatchingModel(Pytree, mutable=False):
     Attributes:
         covariates_X (Array): covariates of utility function of agents of type X
         covariates_Y (Array): covariates of utility function of agents of type Y
+        types_idx_X (Array): 
+        types_idx_Y (Array):
+        types_X (int): number of agents of types X
+        types_Y (int): number of agents of types Y
         marginal_distribution_X (Array): marginal distribution of agents of type X
         marginal_distribution_Y (Array): marginal distribution of agents of type Y
     """
@@ -32,15 +31,22 @@ class MatchingModel(Pytree, mutable=False):
     covariates_X: Array
     covariates_Y: Array
 
+    types_idx_X: Array
+    types_idx_Y: Array
+
     marginal_distribution_X: Array
     marginal_distribution_Y: Array
 
-    def ChoiceProbabilities(self, v: Array, axis: int) -> tuple[Array, Array]:
+    types_X: int
+    types_Y: int
+
+    def ChoiceProbabilities(self, v: Array, segments: Array, num_segments: int) -> tuple[Array, Array]:
         """Compute the logit choice probabilities for inside and outside options
 
         Args:
             v (Array): choice-specific payoffs
-            axis (int): axis that describes the choice set
+            segments (Array): an array with integers that indicates the segments of v
+            num_segments (int): nonnegative integer value indicating the number of segments
 
         Returns:
         P_inside (Array):
@@ -49,14 +55,18 @@ class MatchingModel(Pytree, mutable=False):
             choice probabilities of outside option.
         """
         # Center by subtracting max for numerical stability
-        v_max = jnp.max(v, axis=axis, keepdims=True)
+        v_max = segment_max(v, segments, num_segments=num_segments)
 
-        expV_inside = jnp.exp(v - v_max)
+        expV_inside = jnp.exp(v - v_max[segments])
         expV_outside = jnp.exp(-v_max)
+        expV_sum = segment_sum(expV_inside, segments, num_segments=num_segments)
 
         # denominator of choice probabilities (includes outside option with payoff 0)
-        denominator = expV_outside + jnp.sum(expV_inside, axis=axis, keepdims=True)
-        return expV_inside / denominator, expV_outside / denominator
+        denominator = (
+            expV_outside 
+            + expV_sum
+        )
+        return expV_inside / denominator[segments], expV_outside / denominator
 
     def Utility(self, covariates: Array, parameters: Array) -> Array:
         """Computes match-specific utilities
@@ -66,9 +76,9 @@ class MatchingModel(Pytree, mutable=False):
             parameters (Array): parameters of utility function
 
         Returns:
-            demand (Array): match-specific utilities
+            utilities (Array): match-specific utilities
         """
-        return jnp.einsum("ijk, k -> ij", covariates, parameters)
+        return jnp.matmul(covariates, parameters)
 
     def ChoiceProbabilities_X(
         self, transfer: Array, utility_X: Array, scale_X: Array
@@ -84,7 +94,7 @@ class MatchingModel(Pytree, mutable=False):
             ChoiceProbabilities (Array): match-specific choice probabilities for agents of type X
         """
         v_X = jax.lax.add(utility_X, transfer) / scale_X
-        return self.ChoiceProbabilities(v_X, axis=1)
+        return self.ChoiceProbabilities(v_X, self.types_idx_X, self.types_X)
 
     def ChoiceProbabilities_Y(
         self, transfer: Array, utility_Y: Array, scale_Y: Array
@@ -100,7 +110,7 @@ class MatchingModel(Pytree, mutable=False):
             ChoiceProbabilities (Array): match-specific choice probabilities for agents of type Y
         """
         v_Y = jax.lax.sub(utility_Y, transfer) / scale_Y
-        return self.ChoiceProbabilities(v_Y, axis=0)
+        return self.ChoiceProbabilities(v_Y, self.types_idx_Y, self.types_Y)
 
     def Demand_X(self, transfer: Array, utility_X: Array, scale_X: Array) -> Array:
         """Computes agents of type X's demand for agents of type Y
@@ -114,7 +124,7 @@ class MatchingModel(Pytree, mutable=False):
             demand (Array): demand for inside options
         """
         return (
-            self.marginal_distribution_X
+            self.marginal_distribution_X[self.types_idx_X]
             * self.ChoiceProbabilities_X(transfer, utility_X, scale_X)[0]
         )
 
@@ -130,7 +140,7 @@ class MatchingModel(Pytree, mutable=False):
             demand (Array): demand for inside options
         """
         return (
-            self.marginal_distribution_Y
+            self.marginal_distribution_Y[self.types_idx_Y]
             * self.ChoiceProbabilities_Y(transfer, utility_Y, scale_Y)[0]
         )
 
@@ -254,6 +264,9 @@ class MatchingModel(Pytree, mutable=False):
         pY_xy, pY_0y = self.ChoiceProbabilities_Y(transfer, utility_Y, scale_Y)
 
         variance_errors = jnp.var(transfer - data.transfer)
+        # print(f"model transfers:\n{transfer}")
+        # print(f"observed transfers:\n{data.transfer}")
+        # print(f"{variance_errors = }")
 
         number_of_observations = (
             2 * jnp.sum(data.matched)
@@ -298,6 +311,8 @@ class MatchingModel(Pytree, mutable=False):
             params (Array): parameter estimates
         """
 
+        # loglik = -self.neg_log_likelihood(guess, data)
+        # import sys; sys.exit()
         result = LBFGS(
             fun=self.neg_log_likelihood,
             tol=tol,
@@ -318,16 +333,21 @@ class MatchingModel(Pytree, mutable=False):
 
         utility_X, utility_Y = self.Utilities_of_agents(params)
 
-        transfer = self.solve(utility_X, utility_Y, params)
+        transfer = self.solve(utility_X, utility_Y, params, verbose=True)
 
         scale_X, scale_Y = self.extract_scale_parameters(params)
 
         pX_xy, pX_x0 = self.ChoiceProbabilities_X(transfer, utility_X, scale_X)
-        pY_0y = self.ChoiceProbabilities_Y(transfer, utility_Y, scale_Y)[1]
+        pY_xy, pY_0y = self.ChoiceProbabilities_Y(transfer, utility_Y, scale_Y)
+
+        mX_xy = pX_xy * self.marginal_distribution_X[self.types_idx_X]
+        mY_xy = pY_xy * self.marginal_distribution_Y[self.types_idx_Y]
+
+        assert jnp.allclose(mX_xy, mY_xy), "demand and supply do not equate"
 
         return Data(
             transfer=transfer,
-            matched=pX_xy * self.marginal_distribution_X,
+            matched=mX_xy,
             unmatched_X=pX_x0 * self.marginal_distribution_X,
             unmatched_Y=pY_0y * self.marginal_distribution_Y,
         )

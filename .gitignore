@@ -208,3 +208,5 @@ __marimo__/
 
 # Custom additions
 *.DS_Store
+
+run_test.py
