@@ -11,6 +11,7 @@ from jax import random
 from estimate_matching_model.matching_model import MatchingModel, Data
 
 from tabulate import tabulate
+import time
 
 # Increase precision to 64 bit
 jax.config.update("jax_enable_x64", True)
@@ -50,7 +51,11 @@ parameters = random.uniform(
     shape=(number_of_parameters_X + number_of_parameters_Y + 2,),
 )
 
+start = time.time()
 solution = model.predict(params=parameters)
+print(f"time: {time.time() - start} sec.")
+import sys; sys.exit()
+
 
 # Simulate data
 mu, sigma = 0.0, 1.0

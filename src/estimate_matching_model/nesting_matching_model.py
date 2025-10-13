@@ -5,7 +5,7 @@ from jax.ops import segment_max, segment_sum
 
 # import simple_pytree (used to store variables)
 from simple_pytree import Pytree, dataclass
-from estimate_matching_model.dataclass_pytree import Data, SolverTypes
+from estimate_matching_model.dataclass_pytree import Data, ModelParameters, SolverTypes
 
 # import solvers
 from jaxopt import LBFGS
@@ -20,33 +20,42 @@ class MatchingModel(Pytree, mutable=False):
     Attributes:
         covariates_X (Array): covariates of utility function of agents of type X
         covariates_Y (Array): covariates of utility function of agents of type Y
-        types_idx_X (Array): 
-        types_idx_Y (Array):
-        types_X (int): number of agents of types X
-        types_Y (int): number of agents of types Y
         marginal_distribution_X (Array): marginal distribution of agents of type X
         marginal_distribution_Y (Array): marginal distribution of agents of type Y
+        types_idx_X (Array): index for agents of type X
+        types_idx_Y (Array): index for agents of type Y
+        nest_idx_X (Array | None): nest index for the alternatives in the choice set for agents of type X
+        nest_idx_Y (Array | None): nest index for the alternatives in the choice set for agents of type Y
     """
 
-    covariates_X: Array
-    covariates_Y: Array
+    def __init__(
+            self, 
+            covariates_X, covariates_Y, types_idx_X, types_idx_Y, marginal_distribution_X, marginal_distribution_Y, nest_idx_X=None, nest_idx_Y=None
+        ):
+        self.covariates_X: Array = covariates_X
+        self.covariates_Y: Array = covariates_Y
+        self.marginal_distribution_X: Array = marginal_distribution_X
+        self.marginal_distribution_Y: Array = marginal_distribution_Y
+        self.types_idx_X: Array = types_idx_X
+        self.types_idx_Y: Array = types_idx_Y
+        self.number_of_types_X: int = int(jnp.max(self.types_idx_X).item()) + 1
+        self.number_of_types_Y: int = int(jnp.max(self.types_idx_Y).item()) + 1
+        self.nest_idx_X: Array | None = nest_idx_X
+        self.nest_idx_Y: Array | None = nest_idx_Y
+        self.number_of_nests_X: int | None = None if self.nest_idx_X is None else int(jnp.max(self.nest_idx_X).item()) + 1
+        self.number_of_nests_Y: int | None = None if self.nest_idx_Y is None else int(jnp.max(self.nest_idx_Y).item()) + 1
+        self.type_nest_idx_X: Array | None = None if self.nest_idx_Y is None else self.types_idx_X * self.number_of_nests_Y + self.nest_idx_Y
+        self.type_nest_idx_Y: Array | None = None if self.nest_idx_X is None else self.types_idx_Y * self.number_of_nests_X + self.nest_idx_X
+        self.number_of_type_nests_X: int | None = None if self.type_nest_idx_X is None else int(jnp.max(self.type_nest_idx_X).item()) + 1
+        self.number_of_type_nests_Y: int | None = None if self.type_nest_idx_Y is None else int(jnp.max(self.type_nest_idx_Y).item()) + 1
 
-    types_idx_X: Array
-    types_idx_Y: Array
-
-    marginal_distribution_X: Array
-    marginal_distribution_Y: Array
-
-    types_X: int
-    types_Y: int
-
-    def ChoiceProbabilities(self, v: Array, segments: Array, num_segments: int) -> tuple[Array, Array]:
+    def logit(self, v: Array, type_idx: Array, number_of_types: int) -> tuple[Array, Array]:
         """Compute the logit choice probabilities for inside and outside options
 
         Args:
             v (Array): choice-specific payoffs
-            segments (Array): an array with integers that indicates the segments of v
-            num_segments (int): nonnegative integer value indicating the number of segments
+            type_idx (Array): index for the type of agents
+            number_of_types (int): number of agent types
 
         Returns:
         P_inside (Array):
@@ -55,18 +64,79 @@ class MatchingModel(Pytree, mutable=False):
             choice probabilities of outside option.
         """
         # Center by subtracting max for numerical stability
-        v_max = segment_max(v, segments, num_segments=num_segments)
+        v_max = segment_max(v, type_idx, number_of_types)
 
-        expV_inside = jnp.exp(v - v_max[segments])
+        expV_inside = jnp.exp(v - v_max[type_idx])
         expV_outside = jnp.exp(-v_max)
-        expV_sum = segment_sum(expV_inside, segments, num_segments=num_segments)
 
         # denominator of choice probabilities (includes outside option with payoff 0)
         denominator = (
-            expV_outside 
-            + expV_sum
+            expV_outside + segment_sum(expV_inside, type_idx, num_segments=number_of_types)
         )
-        return expV_inside / denominator[segments], expV_outside / denominator
+        return expV_inside / denominator[type_idx], expV_outside / denominator
+    
+    def nested_logit(
+            self, v: Array, type_idx: Array, number_of_types: int, type_nest_idx: Array, number_of_type_nests: int, nesting_parameter: Array
+        ) -> tuple[Array, Array]:
+        """Compute the nested logit choice probabilities for inside and outside options
+
+        Args:
+            v (Array): choice-specific payoffs
+            type_idx (Array): index for the type of agents
+            number_of_types (int): number of agent types
+            nest_idx (Array): nest index for the alternatives in the choice set for the type of agents
+            number_of_nests (int): number of nests
+            nesting_parameter (Array): the nesting parameter (lambda), where 0 < lambda <= 1
+
+        Returns:
+        P_inside (Array):
+            choice probabilities of inside options.
+        P_outside (Array):
+            choice probabilities of outside option.
+        """
+        # Step 1: Compute inclusive values (log-sum within each nest)
+        # Center by subtracting max within each nest for numerical stability
+        v_scaled = v / nesting_parameter
+        v_max_nest = segment_max(v_scaled, type_nest_idx, num_segments=number_of_type_nests)
+
+        expV_nest = jnp.exp(v_scaled - v_max_nest[type_nest_idx])
+        sum_expV_nest = segment_sum(expV_nest, type_nest_idx, num_segments=number_of_type_nests)
+
+        # Inclusive value (log of sum within nest, scaled back)
+        inclusive_value = v_max_nest + jnp.log(sum_expV_nest)
+        inclusive_value_scaled = nesting_parameter * inclusive_value[type_nest_idx]
+
+        # Step 2: Compute nest-level choice probabilities (between nests and outside option)
+        # Center by subtracting max across nests within each agent type
+        iv_max = segment_max(inclusive_value_scaled, type_idx, num_segments=number_of_types)
+
+        expIV = jnp.exp(inclusive_value_scaled - iv_max[type_idx])
+        expV_outside = jnp.exp(-iv_max)
+
+        # Denominator includes all nests plus outside option
+        denominator = expV_outside + segment_sum(expIV, type_idx, num_segments=number_of_types)
+
+        # Probability of choosing each nest
+        P_nest = expIV / denominator[type_idx]
+
+        # Step 3: Compute within-nest choice probabilities
+        P_inside = (expV_nest / sum_expV_nest[type_nest_idx]) * P_nest[type_nest_idx]
+        P_outside = expV_outside / denominator
+
+        # P_inside0 = segment_sum(P_inside, segment_ids=type_idx, num_segments=number_of_types)
+        # assert jnp.allclose(P_inside0 + P_outside, 1.0)
+
+        return P_inside, P_outside
+    
+    def ChoiceProbabilities(
+            self, v: Array, type_idx: Array, number_of_types: int, type_nest_idx: Array|None, number_of_type_nests: int|None, nesting_parameter: Array|None = None
+        ) -> tuple[Array, Array]:
+        if type_nest_idx is None:
+            return self.logit(v, type_idx, number_of_types)
+        elif type_nest_idx is not None and number_of_type_nests is not None and nesting_parameter is not None:
+            return self.nested_logit(v, type_idx, number_of_types, type_nest_idx, number_of_type_nests, nesting_parameter)
+        else:
+            return jnp.zeros_like(self.types_idx_X), jnp.zeros_like(self.marginal_distribution_X) 
 
     def Utility(self, covariates: Array, parameters: Array) -> Array:
         """Computes match-specific utilities
@@ -81,7 +151,7 @@ class MatchingModel(Pytree, mutable=False):
         return jnp.matmul(covariates, parameters)
 
     def ChoiceProbabilities_X(
-        self, transfer: Array, utility_X: Array, scale_X: Array
+        self, transfer: Array, utility_X: Array, mp: ModelParameters
     ) -> tuple[Array, Array]:
         """Computes choice probabilities of agents of type X
 
@@ -93,11 +163,13 @@ class MatchingModel(Pytree, mutable=False):
         Returns:
             ChoiceProbabilities (Array): match-specific choice probabilities for agents of type X
         """
-        v_X = jax.lax.add(utility_X, transfer) / scale_X
-        return self.ChoiceProbabilities(v_X, self.types_idx_X, self.types_X)
+        v_X = jax.lax.add(utility_X, transfer) / mp.scale_X
+        return self.ChoiceProbabilities(
+            v_X, self.types_idx_X, self.number_of_types_X, self.type_nest_idx_X, self.number_of_type_nests_X, mp.nesting_parameter_X
+        )
 
     def ChoiceProbabilities_Y(
-        self, transfer: Array, utility_Y: Array, scale_Y: Array
+        self, transfer: Array, utility_Y: Array, mp: ModelParameters
     ) -> tuple[Array, Array]:
         """Computes choice probabilities of agents of type Y
 
@@ -109,10 +181,12 @@ class MatchingModel(Pytree, mutable=False):
         Returns:
             ChoiceProbabilities (Array): match-specific choice probabilities for agents of type Y
         """
-        v_Y = jax.lax.sub(utility_Y, transfer) / scale_Y
-        return self.ChoiceProbabilities(v_Y, self.types_idx_Y, self.types_Y)
+        v_Y = jax.lax.sub(utility_Y, transfer) / mp.scale_Y
+        return self.ChoiceProbabilities(
+            v_Y, self.types_idx_Y, self.number_of_types_Y, self.type_nest_idx_Y, self.number_of_type_nests_Y, mp.nesting_parameter_Y
+        )
 
-    def Demand_X(self, transfer: Array, utility_X: Array, scale_X: Array) -> Array:
+    def Demand_X(self, transfer: Array, utility_X: Array, mp: ModelParameters) -> Array:
         """Computes agents of type X's demand for agents of type Y
 
         Args:
@@ -125,10 +199,10 @@ class MatchingModel(Pytree, mutable=False):
         """
         return (
             self.marginal_distribution_X[self.types_idx_X]
-            * self.ChoiceProbabilities_X(transfer, utility_X, scale_X)[0]
+            * self.ChoiceProbabilities_X(transfer, utility_X, mp)[0]
         )
 
-    def Demand_Y(self, transfer: Array, utility_Y: Array, scale_Y: Array) -> Array:
+    def Demand_Y(self, transfer: Array, utility_Y: Array, mp: ModelParameters) -> Array:
         """Computes agents of type Y's demand for agents of type X
 
         Args:
@@ -141,7 +215,7 @@ class MatchingModel(Pytree, mutable=False):
         """
         return (
             self.marginal_distribution_Y[self.types_idx_Y]
-            * self.ChoiceProbabilities_Y(transfer, utility_Y, scale_Y)[0]
+            * self.ChoiceProbabilities_Y(transfer, utility_Y, mp)[0]
         )
 
     def UpdateTransfers(
@@ -149,7 +223,7 @@ class MatchingModel(Pytree, mutable=False):
         t_initial: Array,
         utility_X: Array,
         utility_Y: Array,
-        params: Array,
+        mp: ModelParameters,
     ) -> Array:
         """Updates fixed point equation for transfers
 
@@ -162,26 +236,25 @@ class MatchingModel(Pytree, mutable=False):
         Returns:
             t_updated (Array): updated transfers
         """
-        scale_X, scale_Y = self.extract_scale_parameters(params)
 
         # Calculate demand for both sides of the market
-        demand_X = self.Demand_X(t_initial, utility_X, scale_X)
-        demand_Y = self.Demand_Y(t_initial, utility_Y, scale_Y)
+        demand_X = self.Demand_X(t_initial, utility_X, mp)
+        demand_Y = self.Demand_Y(t_initial, utility_Y, mp)
 
-        adjustment = scale_X * scale_Y / (scale_X + scale_Y)
+        log_Z = jnp.log(demand_Y / demand_X)
 
         # Update transfer
-        t_updated = t_initial + adjustment * jnp.log(demand_Y / demand_X)
+        t_updated = t_initial + mp.adjustment * log_Z
         return t_updated
 
     def solve(
         self,
         utility_X: Array,
         utility_Y: Array,
-        params: Array,
+        mp: ModelParameters,
         fixed_point_solver: SolverTypes = SquaremAcceleration,
         tol: float = 1e-10,
-        maxiter: int = 1000,
+        maxiter: int = 50,
         verbose: bool = False,
     ) -> Array:
         """Solve for equilibrium transfer
@@ -206,10 +279,23 @@ class MatchingModel(Pytree, mutable=False):
             maxiter=maxiter,
             tol=tol,
             verbose=verbose,
-        ).run(transfer_init, utility_X, utility_Y, params)
+        ).run(transfer_init, utility_X, utility_Y, mp)
         return result.params
+    
+    def restrict_to_unit_interval(self, unrestricted_nesting: Array) -> Array:
+        """Restrict nesting parameter to be in the unit interval
+        
+        Args:
+            unrestricted_nesting (Array): unrestricted nesting parameter
 
-    def extract_scale_parameters(self, params: Array) -> tuple[Array, Array]:
+        Returns:
+            restricted_nesting (Array):
+                restricted nesting parameter
+        """
+        exp_nesting = jnp.exp(unrestricted_nesting)
+        return exp_nesting / (1 + exp_nesting)
+
+    def extract_parameters(self, params: Array) -> ModelParameters:
         """Extract the scale parameters from params
 
         Args:
@@ -221,9 +307,50 @@ class MatchingModel(Pytree, mutable=False):
             scale_Y (Array):
                 scale parameter of agents of type Y
         """
-        return jnp.exp(params[-2]), jnp.exp(params[-1])
+        number_of_covariates_X = self.covariates_X.shape[-1]
+        number_of_covariates_Y = self.covariates_Y.shape[-1]
+        number_of_covariate = number_of_covariates_X + number_of_covariates_Y
 
-    def Utilities_of_agents(self, params: Array) -> tuple[Array, Array]:
+        # extract scale parameters and restrict them to be positive
+        scale_X = jnp.exp(params[-2])
+        scale_Y = jnp.exp(params[-1])
+
+        # extract nesting parameters and constant for agents of type X
+        if self.type_nest_idx_X is None:
+            nesting_parameter_X = None
+            constant_X = scale_X
+        elif self.type_nest_idx_X is not None and self.type_nest_idx_Y is not None:
+            nesting_parameter_X = self.restrict_to_unit_interval(params[-4])
+            constant_X = nesting_parameter_X * scale_X
+        elif self.type_nest_idx_X is not None and self.type_nest_idx_Y is None:
+            nesting_parameter_X = self.restrict_to_unit_interval(params[-3])
+            constant_X = nesting_parameter_X * scale_X
+        else:
+            nesting_parameter_X = None
+            constant_X = scale_X
+
+        # extract nesting parameters and constant for agents of type Y
+        if self.type_nest_idx_Y is None:
+            nesting_parameter_Y = None
+            constant_Y = scale_Y
+        else:
+            nesting_parameter_Y = self.restrict_to_unit_interval(params[-3])
+            constant_Y = nesting_parameter_Y * scale_Y
+
+        # set adjustment factor of fixed-point equation
+        adjustment = constant_X * constant_Y / (constant_X + constant_Y)
+
+        return ModelParameters(
+            beta_X=params[:number_of_covariates_X],
+            beta_Y=params[number_of_covariates_X:number_of_covariate],
+            scale_X=scale_X,
+            scale_Y=scale_Y,
+            nesting_parameter_X=nesting_parameter_X,
+            nesting_parameter_Y=nesting_parameter_Y,
+            adjustment=adjustment,
+        )
+
+    def Utilities_of_agents(self, mp: ModelParameters) -> tuple[Array, Array]:
         """Compute match-specific utilities for agents of type X and Y
 
         Args:
@@ -235,13 +362,8 @@ class MatchingModel(Pytree, mutable=False):
         utility_Y (Array):
             utilities for agents of type Y
         """
-        number_of_covariates_X = self.covariates_X.shape[-1]
-
-        beta_X = params[:number_of_covariates_X]
-        beta_Y = params[number_of_covariates_X:-2]
-
-        utility_X = self.Utility(self.covariates_X, beta_X)
-        utility_Y = self.Utility(self.covariates_Y, beta_Y)
+        utility_X = self.Utility(self.covariates_X, mp.beta_X)
+        utility_Y = self.Utility(self.covariates_Y, mp.beta_Y)
         return utility_X, utility_Y
 
     def neg_log_likelihood(self, params: Array, data: Data) -> Array:
@@ -254,19 +376,16 @@ class MatchingModel(Pytree, mutable=False):
         Returns:
             neg_log_lik (Array): negative log-likelihood value
         """
-        utility_X, utility_Y = self.Utilities_of_agents(params)
+        mp = self.extract_parameters(params)
 
-        transfer = self.solve(utility_X, utility_Y, params)
+        utility_X, utility_Y = self.Utilities_of_agents(mp)
 
-        scale_X, scale_Y = self.extract_scale_parameters(params)
+        transfer = self.solve(utility_X, utility_Y, mp, verbose=False)
 
-        pX_xy, pX_x0 = self.ChoiceProbabilities_X(transfer, utility_X, scale_X)
-        pY_xy, pY_0y = self.ChoiceProbabilities_Y(transfer, utility_Y, scale_Y)
+        pX_xy, pX_x0 = self.ChoiceProbabilities_X(transfer, utility_X, mp)
+        pY_xy, pY_0y = self.ChoiceProbabilities_Y(transfer, utility_Y, mp)
 
         variance_errors = jnp.var(transfer - data.transfer)
-        # print(f"model transfers:\n{transfer}")
-        # print(f"observed transfers:\n{data.transfer}")
-        # print(f"{variance_errors = }")
 
         number_of_observations = (
             2 * jnp.sum(data.matched)
@@ -310,9 +429,6 @@ class MatchingModel(Pytree, mutable=False):
         Returns:
             params (Array): parameter estimates
         """
-
-        # loglik = -self.neg_log_likelihood(guess, data)
-        # import sys; sys.exit()
         result = LBFGS(
             fun=self.neg_log_likelihood,
             tol=tol,
@@ -330,15 +446,14 @@ class MatchingModel(Pytree, mutable=False):
         Returns:
             predictions (Data): preditcted transfers and number of matched and unmatched agents
         """
+        mp = self.extract_parameters(params)
+        
+        utility_X, utility_Y = self.Utilities_of_agents(mp)
 
-        utility_X, utility_Y = self.Utilities_of_agents(params)
+        transfer = self.solve(utility_X, utility_Y, mp, verbose=True)
 
-        transfer = self.solve(utility_X, utility_Y, params, verbose=True)
-
-        scale_X, scale_Y = self.extract_scale_parameters(params)
-
-        pX_xy, pX_x0 = self.ChoiceProbabilities_X(transfer, utility_X, scale_X)
-        pY_xy, pY_0y = self.ChoiceProbabilities_Y(transfer, utility_Y, scale_Y)
+        pX_xy, pX_x0 = self.ChoiceProbabilities_X(transfer, utility_X, mp)
+        pY_xy, pY_0y = self.ChoiceProbabilities_Y(transfer, utility_Y, mp)
 
         mX_xy = pX_xy * self.marginal_distribution_X[self.types_idx_X]
         mY_xy = pY_xy * self.marginal_distribution_Y[self.types_idx_Y]
