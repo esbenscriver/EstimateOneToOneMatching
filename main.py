@@ -81,7 +81,6 @@ table_estimates = tabulate(
     tablefmt="grid",
     floatfmt=".4f",
 )
-
 print(f"\n{table_estimates}")
 print(f"log-likelihood value: {log_lik:.4f}\n")
 
