@@ -22,7 +22,7 @@ number_of_parameters_X, number_of_parameters_Y = 2, 3
 parameter_names_X = [f"beta_X ({x})" for x in range(number_of_parameters_X)]
 parameter_names_Y = [f"beta_Y ({y})" for y in range(number_of_parameters_Y)]
 parameter_names = (
-    parameter_names_X + parameter_names_Y + ["log(scale_X)", "log(scale_Y)"]
+    parameter_names_X + parameter_names_Y + ["scale_X", "scale_Y"]
 )
 
 # Simulate covariates of the agents' utility function
@@ -54,8 +54,6 @@ parameters = random.uniform(
 start = time.time()
 solution = model.predict(params=parameters)
 print(f"time: {time.time() - start} sec.")
-import sys; sys.exit()
-
 
 # Simulate data
 mu, sigma = 0.0, 1.0
@@ -72,12 +70,15 @@ data = Data(
 
 guess = jnp.zeros_like(parameters)
 
-parameter_estimates = model.fit(guess, data, verbose=True)
+estimates_unrestricted = model.fit(guess, data, verbose=True)
 
-log_lik = -model.neg_log_likelihood(parameter_estimates, data)
+log_lik = -model.neg_log_likelihood(estimates_unrestricted, data)
+
+estimates_restricted = model.restricted_parameters(estimates_unrestricted)
+parameters_restricted = model.restricted_parameters(parameters)
 
 table_estimates = tabulate(
-    list(zip(parameter_names, parameters, parameter_estimates)),
+    list(zip(parameter_names, parameters_restricted, estimates_restricted)),
     headers=["names", "True parameters", "Estimated parameters"],
     tablefmt="grid",
     floatfmt=".4f",
@@ -86,4 +87,4 @@ table_estimates = tabulate(
 print(f"\n{table_estimates}")
 print(f"log-likelihood value: {log_lik:.4f}\n")
 
-predictions = model.predict(params=parameter_estimates)
+predictions = model.predict(params=estimates_restricted)

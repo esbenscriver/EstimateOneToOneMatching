@@ -27,9 +27,9 @@ class ModelParameters(Pytree, mutable=False):
     beta_Y: Array
     scale_X: Array
     scale_Y: Array
-    nesting_parameter_X: Array | None
-    nesting_parameter_Y: Array | None
     adjustment: Array
+    nesting_parameter_X: Array | None = None
+    nesting_parameter_Y: Array | None = None
     
 
 @dataclass
