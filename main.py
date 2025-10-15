@@ -21,9 +21,7 @@ number_of_parameters_X, number_of_parameters_Y = 2, 3
 
 parameter_names_X = [f"beta_X ({x})" for x in range(number_of_parameters_X)]
 parameter_names_Y = [f"beta_Y ({y})" for y in range(number_of_parameters_Y)]
-parameter_names = (
-    parameter_names_X + parameter_names_Y + ["scale_X", "scale_Y"]
-)
+parameter_names = parameter_names_X + parameter_names_Y + ["scale_X", "scale_Y"]
 
 # Simulate covariates of the agents' utility function
 covariates_X = -random.uniform(

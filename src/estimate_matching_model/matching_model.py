@@ -213,11 +213,11 @@ class MatchingModel(Pytree, mutable=False):
 
         # extract scale parameters and restrict them to be positive
         scale_X = jnp.exp(params[-2])
-        scale_Y = jnp.exp(params[-1])        
+        scale_Y = jnp.exp(params[-1])
 
         # set adjustment factor of fixed-point equation
         adjustment = scale_X * scale_Y / (scale_X + scale_Y)
-        
+
         return ModelParameters(
             beta_X=params[:number_of_covariates_X],
             beta_Y=params[number_of_covariates_X:number_of_covariate],
@@ -225,12 +225,11 @@ class MatchingModel(Pytree, mutable=False):
             scale_Y=scale_Y,
             adjustment=adjustment,
         )
-    
+
     def restricted_parameters(self, unrestricted_params: Array):
         mp = self.extract_parameters(unrestricted_params)
         restricted_params = jnp.concatenate(
-            [mp.beta_X, mp.beta_Y, mp.scale_X[None], mp.scale_Y[None]], 
-            axis=0
+            [mp.beta_X, mp.beta_Y, mp.scale_X[None], mp.scale_Y[None]], axis=0
         )
         return restricted_params
 
@@ -262,7 +261,7 @@ class MatchingModel(Pytree, mutable=False):
             neg_log_lik (Array): negative log-likelihood value
         """
         mp = self.extract_parameters(params)
-        
+
         utility_X, utility_Y = self.Utilities_of_agents(mp)
 
         transfer = self.solve(utility_X, utility_Y, mp)

@@ -13,7 +13,7 @@ SolverTypes = (
 @dataclass
 class ModelParameters(Pytree, mutable=False):
     """Model parameters
-    
+
     Attributes:
         beta_X (Array): parameters describing the utility function of agents of type X
         beta_Y (Array): parameters describing the utility function of agents of type Y
@@ -23,6 +23,7 @@ class ModelParameters(Pytree, mutable=False):
         nesting_parameter_Y (Array | None): nesting parameter for agents of type Y
         adjustment (Array): adjustment factor for the fixed-point equation
     """
+
     beta_X: Array
     beta_Y: Array
     scale_X: Array
@@ -30,7 +31,7 @@ class ModelParameters(Pytree, mutable=False):
     adjustment: Array
     nesting_parameter_X: Array | None = None
     nesting_parameter_Y: Array | None = None
-    
+
 
 @dataclass
 class Data(Pytree, mutable=False):
