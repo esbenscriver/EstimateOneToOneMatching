@@ -77,7 +77,7 @@ class MatchingModel(Pytree, mutable=False):
     
     def nested_logit(
             self, v: Array, type_idx: Array, number_of_types: int, type_nest_idx: Array, number_of_type_nests: int, nesting_parameter: Array
-        ) -> tuple[Array, Array]:
+    ) -> tuple[Array, Array]:
         """Compute the nested logit choice probabilities for inside and outside options
 
         Args:
@@ -123,14 +123,11 @@ class MatchingModel(Pytree, mutable=False):
         P_inside = (expV_nest / sum_expV_nest[type_nest_idx]) * P_nest[type_nest_idx]
         P_outside = expV_outside / denominator
 
-        # P_inside0 = segment_sum(P_inside, segment_ids=type_idx, num_segments=number_of_types)
-        # assert jnp.allclose(P_inside0 + P_outside, 1.0)
-
         return P_inside, P_outside
     
     def ChoiceProbabilities(
-            self, v: Array, type_idx: Array, number_of_types: int, type_nest_idx: Array|None, number_of_type_nests: int|None, nesting_parameter: Array|None = None
-        ) -> tuple[Array, Array]:
+            self, v: Array, type_idx: Array, number_of_types: int, type_nest_idx: Array|None, number_of_type_nests: int|None, nesting_parameter: Array|None
+    ) -> tuple[Array, Array]:
         if type_nest_idx is None:
             return self.logit(v, type_idx, number_of_types)
         elif type_nest_idx is not None and number_of_type_nests is not None and nesting_parameter is not None:
@@ -316,10 +313,7 @@ class MatchingModel(Pytree, mutable=False):
         scale_Y = jnp.exp(params[-1])
 
         # extract nesting parameters and constant for agents of type X
-        if self.type_nest_idx_X is None:
-            nesting_parameter_X = None
-            constant_X = scale_X
-        elif self.type_nest_idx_X is not None and self.type_nest_idx_Y is not None:
+        if self.type_nest_idx_X is not None and self.type_nest_idx_Y is not None:
             nesting_parameter_X = self.restrict_to_unit_interval(params[-4])
             constant_X = nesting_parameter_X * scale_X
         elif self.type_nest_idx_X is not None and self.type_nest_idx_Y is None:
@@ -330,16 +324,16 @@ class MatchingModel(Pytree, mutable=False):
             constant_X = scale_X
 
         # extract nesting parameters and constant for agents of type Y
-        if self.type_nest_idx_Y is None:
-            nesting_parameter_Y = None
-            constant_Y = scale_Y
-        else:
+        if self.type_nest_idx_Y is not None:
             nesting_parameter_Y = self.restrict_to_unit_interval(params[-3])
             constant_Y = nesting_parameter_Y * scale_Y
+        else:
+            nesting_parameter_Y = None
+            constant_Y = scale_Y          
 
         # set adjustment factor of fixed-point equation
         adjustment = constant_X * constant_Y / (constant_X + constant_Y)
-
+        
         return ModelParameters(
             beta_X=params[:number_of_covariates_X],
             beta_Y=params[number_of_covariates_X:number_of_covariate],
@@ -349,6 +343,39 @@ class MatchingModel(Pytree, mutable=False):
             nesting_parameter_Y=nesting_parameter_Y,
             adjustment=adjustment,
         )
+    
+    def restricted_parameters(self, unrestricted_params: Array):
+        mp = self.extract_parameters(unrestricted_params)
+        restricted_params = jnp.concatenate([mp.beta_X, mp.beta_Y], axis=0)
+
+        # extract nesting parameters and constant for agents of type X
+        if self.type_nest_idx_X is not None:
+            restricted_params = jnp.concatenate(
+                [
+                    restricted_params, 
+                    jnp.asarray(mp.nesting_parameter_X)[None]
+                ], 
+                axis=0,
+            )
+
+        # extract nesting parameters and constant for agents of type Y
+        if self.type_nest_idx_Y is not None:
+            restricted_params = jnp.concatenate(
+                [
+                    restricted_params, 
+                    jnp.asarray(mp.nesting_parameter_Y)[None]
+                ], 
+                axis=0,
+            )
+
+        restricted_params = jnp.concatenate(
+                [
+                    restricted_params, 
+                    jnp.asarray([mp.scale_X, mp.scale_Y])
+                ], 
+                axis=0,
+            )
+        return restricted_params
 
     def Utilities_of_agents(self, mp: ModelParameters) -> tuple[Array, Array]:
         """Compute match-specific utilities for agents of type X and Y
@@ -447,7 +474,7 @@ class MatchingModel(Pytree, mutable=False):
             predictions (Data): preditcted transfers and number of matched and unmatched agents
         """
         mp = self.extract_parameters(params)
-        
+        print(mp)
         utility_X, utility_Y = self.Utilities_of_agents(mp)
 
         transfer = self.solve(utility_X, utility_Y, mp, verbose=True)
