@@ -17,6 +17,8 @@ import time
 # Increase precision to 64 bit
 jax.config.update("jax_enable_x64", True)
 
+segment = True
+
 types_X, types_Y = 200, 300
 number_of_parameters_X, number_of_parameters_Y = 2, 3
 
@@ -36,13 +38,25 @@ covariates_Y = random.uniform(
 marginal_distribution_X = random.uniform(key=random.PRNGKey(114), shape=(types_X, 1))
 marginal_distribution_Y = random.uniform(key=random.PRNGKey(115), shape=(1, types_Y))
 
-# Solve a matching model with logit demand
-model = MatchingModel(
-    covariates_X=covariates_X,
-    covariates_Y=covariates_Y,
-    marginal_distribution_X=marginal_distribution_X,
-    marginal_distribution_Y=marginal_distribution_Y,
-)
+if segment is False:
+    model = MatchingModel(
+        covariates_X=covariates_X,
+        covariates_Y=covariates_Y,
+        marginal_distribution_X=marginal_distribution_X,
+        marginal_distribution_Y=marginal_distribution_Y,
+    )
+else:
+    type_idx_X = jnp.tile(jnp.arange(types_X)[:, jnp.newaxis], (1, types_Y)).ravel()
+    type_idx_Y = jnp.tile(jnp.arange(types_Y)[:, jnp.newaxis], (1, types_X)).T.ravel()
+
+    model = segment_MatchingModel(
+        covariates_X=covariates_X.reshape((types_X * types_Y, number_of_parameters_X)),
+        covariates_Y=covariates_Y.reshape((types_X * types_Y, number_of_parameters_Y)),
+        marginal_distribution_X=marginal_distribution_X.squeeze(),
+        marginal_distribution_Y=marginal_distribution_Y.squeeze(),
+        types_idx_X=type_idx_X,
+        types_idx_Y=type_idx_Y,
+    )
 
 # Simulate parameters of the agents' utility function
 parameters = random.uniform(
@@ -52,7 +66,7 @@ parameters = random.uniform(
 
 start = time.time()
 solution = model.predict(params=parameters)
-print(f"time: {time.time() - start} sec.")
+print(f"\ntime: {time.time() - start} sec.\n")
 
 # Simulate data
 mu, sigma = 0.0, 1.0
@@ -89,60 +103,3 @@ print(f"log-likelihood value: {log_lik:.4f}\n")
 
 predictions = model.predict(params=estimates_restricted)
 
-mp = model.extract_parameters(parameters)
-utility_X, utility_Y = model.Utilities_of_agents(mp)
-utility_X_ravel, utility_Y_ravel = utility_X.ravel(), utility_Y.ravel()
-transfer_ravel = model.UpdateTransfers(solution.transfer,utility_X,utility_Y,mp).ravel()
-
-type_idx_X = jnp.tile(jnp.arange(types_X)[:, jnp.newaxis], (1, types_Y)).ravel()
-type_idx_Y = jnp.tile(jnp.arange(types_Y)[:, jnp.newaxis], (1, types_X)).T.ravel()
-
-segment_model = segment_MatchingModel(
-    covariates_X=covariates_X.reshape((types_X * types_Y, number_of_parameters_X)),
-    covariates_Y=covariates_Y.reshape((types_X * types_Y, number_of_parameters_Y)),
-    marginal_distribution_X=marginal_distribution_X.squeeze(),
-    marginal_distribution_Y=marginal_distribution_Y.squeeze(),
-    types_idx_X=type_idx_X,
-    types_idx_Y=type_idx_Y,
-)
-
-utility_X_segment, utility_Y_segment = segment_model.Utilities_of_agents(mp)
-print(f"{utility_X_ravel.shape = }, {utility_Y_ravel.shape = }")
-print(f"{utility_X_segment.shape = }, {utility_Y_segment.shape = }")
-print(f"{jnp.allclose(utility_X_ravel, utility_X_segment)}")
-print(f"{jnp.allclose(utility_Y_ravel, utility_Y_segment)}")
-
-transfer_ravel = model.UpdateTransfers(solution.transfer,utility_X,utility_Y,mp).ravel()
-transfer_segment = segment_model.UpdateTransfers(solution.transfer.ravel(),utility_X_segment,utility_Y_segment,mp)
-print(f"{jnp.allclose(transfer_ravel, transfer_segment)}")
-print(f"{data.unmatched_X.shape = }, {data.unmatched_Y.shape = }")
-
-segment_data = Data(
-    transfer=data.transfer.ravel(),
-    matched=data.matched.ravel(),
-    unmatched_X=data.unmatched_X.ravel(),
-    unmatched_Y=data.unmatched_Y.ravel(),
-)
-
-log_lik0 = -segment_model.neg_log_likelihood(guess, segment_data)
-print(f"log-likelihood value: {log_lik0:.6f}\n")
-
-segment_estimates_unrestricted = segment_model.fit(guess, segment_data, verbose=True)
-
-log_lik = -segment_model.neg_log_likelihood(segment_estimates_unrestricted, segment_data)
-
-segment_estimates_restricted = segment_model.restricted_parameters(segment_estimates_unrestricted)
-parameters_restricted = segment_model.restricted_parameters(parameters)
-
-table_estimates = tabulate(
-    list(zip(parameter_names, parameters_restricted, segment_estimates_restricted)),
-    headers=["names", "True parameters", "Estimated parameters"],
-    tablefmt="grid",
-    floatfmt=".4f",
-)
-print(f"\n{table_estimates}")
-print(f"log-likelihood value: {log_lik:.4f}\n")
-
-start = time.time()
-segment_solution = segment_model.predict(params=parameters)
-print(f"time: {time.time() - start} sec.")
