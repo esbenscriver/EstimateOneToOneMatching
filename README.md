@@ -2,7 +2,7 @@
 [![CD](https://github.com/esbenscriver/EstimateOneToOneMatching/actions/workflows/cd.yml/badge.svg)](https://github.com/esbenscriver/EstimateOneToOneMatching/actions/workflows/cd.yml)
 
 # Estimate one-to-one matching model
-This package estimate by maximum likelihood a one-to-one matching model with transferable utility where the choice probabilities of the agents on both sides of the matching market are given by the logit model.
+This package estimate by maximum likelihood a one-to-one matching model with transferable utility where the choice probabilities of the agents on both sides of the matching market are given by the logit model. The estimator assumes that the distribution of transfers and matches are observed.
 
 The model and estimator are implemented in JAX. We leverage the [SQUAREM](https://github.com/esbenscriver/squarem-JAXopt) accelerator to efficiently solve the system of fixed-point equations that characterize the equilibrium transfers. Finally, we rely on the [JAXopt](https://github.com/google/jaxopt) implementation of implicit differentiation when calculating the gradient of the log-likelihood function automatically.
 
@@ -56,7 +56,7 @@ $$
 are the marginal distribution of agents of type X and Y. The distribution of equilibrium transfers can be determined from a system of fixed-point equations
 
 $$
-    t_{xy} = t_{xy} + \tfrac{\sigma^{x}\sigma^{Y}}{\sigma^{X} + \sigma^{Y}} \log \left( \frac{ n^{Y}_{y} p^{Y}_{xy} } { n^{X}_{x} p^{X}_{xy} } \right),
+    t_{xy} = t_{xy} + \tfrac{\sigma^{X}\sigma^{Y}}{\sigma^{X} + \sigma^{Y}} \log \left( \frac{ n^{Y}_{y} p^{Y}_{xy} } { n^{X}_{x} p^{X}_{xy} } \right),
 $$
 
 that can be shown to be a contraction mapping, see [Andersen (2025)](https://arxiv.org/pdf/2409.05518). Hence, iterating on this expression is guaranteed to converge to an unique solution, $t^{*}_{xy}$.
@@ -92,16 +92,16 @@ $$
     \log L_t(\theta) = - \tfrac{XY}{2} \log \hat{\sigma}^{2}(\theta),
 $$
 
-the log-likelihood of the matched and unmatched agents of type X is given as the negative Kullback-Leibler divergence between the observed choices, $(m_{x0},m_{xy})$, and the model consistent choice probabilities of agents of type X
+the log-likelihood of the matched and unmatched agents of type X is given as the negative Kullback-Leibler divergence between the observed choices, $(\tilde{m}_{x0},\tilde{m}_{xy})$, and the model consistent choice probabilities of agents of type X
 
 $$
-    \log L_{m}^{X}(\theta) = \sum_{x}^{X}\left[ m_{x0} \log p^{X}_{x0}(\theta) + \sum_{y}^{Y} m_{xy} \log p^{X}_{xy}(\theta) \right],
+    \log L_{m}^{X}(\theta) = \sum_{x}^{X}\left[ \tilde{m}_{x0} \log p^{X}_{x0}(\theta) + \sum_{y}^{Y} \tilde{m}_{xy} \log p^{X}_{xy}(\theta) \right],
 $$
 
-and the log-likelihood of the matched and unmatched agents of type Y is given as the negative Kullback-Leibler divergence between the observed choices, $(m_{0y},m_{xy})$, and the model consistent choice probabilities of agents of type Y
+and the log-likelihood of the matched and unmatched agents of type Y is given as the negative Kullback-Leibler divergence between the observed choices, $(\tilde{m}_{0y},\tilde{m}_{xy})$, and the model consistent choice probabilities of agents of type Y
 
 $$
-    \log L_{m}^{Y}(\theta) = \sum_{y}^{Y}\left[ m_{0y} \log p^{Y}_{0y}(\theta) + \sum_{x}^{X} m_{xy} \log p^{Y}_{xy}(\theta) \right].
+    \log L_{m}^{Y}(\theta) = \sum_{y}^{Y}\left[ \tilde{m}_{0y} \log p^{Y}_{0y}(\theta) + \sum_{x}^{X} \tilde{m}_{xy} \log p^{Y}_{xy}(\theta) \right].
 $$
 
 
