@@ -147,7 +147,7 @@ class MatchingModel(Pytree, mutable=False):
             t_initial (Array): initial transfers
             utility_X (Array): utility of agents of type X
             utility_Y (Array): utility of agents of type Y
-            params (Array): vector of model parameters
+            mp (ModelParameters): model parameters
 
         Returns:
             t_updated (Array): updated transfers
@@ -175,6 +175,7 @@ class MatchingModel(Pytree, mutable=False):
         Args:
             utility_X (Array): utilities of agents of type X
             utility_Y (Array): utilities of agents of type Y
+            mp (ModelParameters): model parameters
             fixed_point_solver (SolverTypes): solver used for solving fixed point equation (FixedPointIteration, AndersonAcceleration, SquaremAcceleration)
             tol (float): stopping tolerance for step length of fixed-point iterations, x_{i+1} - x_{i}
             maxiter (int): maximum number of iterations
