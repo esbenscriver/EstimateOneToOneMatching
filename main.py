@@ -9,7 +9,9 @@ from jax import random
 
 # import solver for one-to-one matching model
 from estimate_matching_model.matching_model import MatchingModel, Data
-from estimate_matching_model.segment_matching_model import MatchingModel as segment_MatchingModel
+from estimate_matching_model.segment_matching_model import (
+    MatchingModel as segment_MatchingModel,
+)
 
 from tabulate import tabulate
 import time
@@ -102,4 +104,3 @@ print(f"\n{table_estimates}")
 print(f"log-likelihood value: {log_lik:.4f}\n")
 
 predictions = model.predict(params=estimates_restricted)
-
