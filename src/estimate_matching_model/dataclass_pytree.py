@@ -1,3 +1,7 @@
+"""
+Script containing classes common to matching_model.py and segment_matching_model.py
+"""
+
 from jax import Array
 from simple_pytree import Pytree, dataclass
 

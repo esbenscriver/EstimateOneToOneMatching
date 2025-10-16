@@ -1,5 +1,5 @@
 """
-JAX implementation of fixed-point iteration algoritm to solve and one-to-one matching model with transferable utility
+JAX implementation of a nested fixed-point algoritm to estimate a one-to-one matching model with transferable utility by maximum likelihood.
 
 Reference:
 Esben Scriver Andersen, Note on solving one-to-one matching models with linear transferable utility, 2025 (https://arxiv.org/pdf/2409.05518)

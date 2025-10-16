@@ -1,3 +1,12 @@
+"""
+JAX implementation of a nested fixed-point algoritm to estimate a one-to-one matching model with transferable utility by maximum likelihood.
+
+Through the use og jax.ops.segment_max() and jax.ops.segment_sum(), this implementation allow the choice set to vary over agents.
+
+Reference:
+Esben Scriver Andersen, Note on solving one-to-one matching models with linear transferable utility, 2025 (https://arxiv.org/pdf/2409.05518)
+"""
+
 import jax
 import jax.numpy as jnp
 from jax import Array
