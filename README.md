@@ -68,7 +68,7 @@ $$
     \tilde{t}_{xy} = t^{*}_{xy}(\theta_{0}) + \varepsilon_{xy}.
 $$
 
-We will use the well known fact that $\mu$ and $\sigma^{2}$ can be concentrated out of the log-likelihood function
+We will use the well known fact that $\mu_{\varepsilon}$ and $\sigma^{2}_{\varepsilon}$ can be concentrated out of the log-likelihood function
 
 $$
     \hat{\varepsilon}_{xy}(\theta) = \tilde{t}_{xy} - t^{*}_{xy}(\theta),
