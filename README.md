@@ -62,7 +62,7 @@ $$
 that can be shown to be a contraction mapping, see [Andersen (2025)](https://arxiv.org/pdf/2409.05518). Hence, iterating on this expression is guaranteed to converge to an unique solution, $t^{*}_{xy}$.
 
 ## Maximum likelihood estimator
-Let $\theta = (\beta^X, \beta^Y,\sigma^X,\sigma^Y)$ denote the vector of parameters to be estimated and let $\theta_{0}$ denote the true but unobserved vector of parameter values. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with an iid normal distributed measurement error, $\varepsilon_{xy} \sim \mathcal{N}(\mu,\sigma^{2})$,  
+Let $\theta = (\beta^X, \beta^Y,\sigma^X,\sigma^Y)$ denote the vector of parameters to be estimated and let $\theta_{0}$ denote the true but unobserved vector of parameter values. $\theta$ is estimated by maximum likelihood, where transfers are assumed to be observed with an iid normal distributed measurement error, $\varepsilon_{xy} \sim \mathcal{N}(\mu_{\varepsilon},\sigma^{2}_{\varepsilon})$,  
 
 $$
     \tilde{t}_{xy} = t^{*}_{xy}(\theta_{0}) + \varepsilon_{xy}.
@@ -74,10 +74,10 @@ $$
     \hat{\varepsilon}_{xy}(\theta) = \tilde{t}_{xy} - t^{*}_{xy}(\theta),
 $$
 $$
-    \hat{\mu}(\theta) = \tfrac{1}{XY} \sum_{x}^{X} \sum_{y}^{Y} \hat{\varepsilon}_{xy}(\theta),
+    \hat{\mu}_{\varepsilon}(\theta) = \tfrac{1}{XY} \sum_{x}^{X} \sum_{y}^{Y} \hat{\varepsilon}_{xy}(\theta),
 $$
 $$
-    \hat{\sigma}^{2}(\theta) = \tfrac{1}{XY} \sum_{x}^{X} \sum_{y}^{Y} \left(\hat{\varepsilon}_{xy}(\theta) - \hat{\mu}(\theta) \right)^2.
+    \hat{\sigma}^{2}_{\varepsilon}(\theta) = \tfrac{1}{XY} \sum_{x}^{X} \sum_{y}^{Y} \left(\hat{\varepsilon}_{xy}(\theta) - \hat{\mu}_{\varepsilon}(\theta) \right)^2.
 $$
 
 The full log-likelihood function is given by the sum of the log-likelihood of transfers, matched and unmatched agents of type X, and matched and unmatched agents of type Y
@@ -89,7 +89,7 @@ $$
 where the log-likelihood of transfers is proportional to the variance of the measurement errors,
 
 $$
-    \log L_t(\theta) = - \tfrac{XY}{2} \log \hat{\sigma}^{2}(\theta),
+    \log L_t(\theta) = - \tfrac{XY}{2} \log \hat{\sigma}^{2}_{\varepsilon}(\theta),
 $$
 
 the log-likelihood of the matched and unmatched agents of type X is given as the negative Kullback-Leibler divergence between the observed choices, $(m_{x0},m_{xy})$, and the model consistent choice probabilities of agents of type X
