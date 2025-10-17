@@ -84,8 +84,6 @@ data = Data(
 )
 
 guess = jnp.zeros_like(parameters)
-log_lik0 = -model.neg_log_likelihood(guess, data)
-print(f"log-likelihood value: {log_lik0:.6f}\n")
 
 estimates_unrestricted = model.fit(guess, data, verbose=True)
 

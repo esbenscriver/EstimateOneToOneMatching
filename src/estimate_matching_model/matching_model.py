@@ -250,7 +250,7 @@ class MatchingModel(Pytree, mutable=False):
         utility_X = self.Utility(self.covariates_X, mp.beta_X)
         utility_Y = self.Utility(self.covariates_Y, mp.beta_Y)
         return utility_X, utility_Y
-
+    
     def neg_log_likelihood(self, params: Array, data: Data) -> Array:
         """Computes the negative log-likelihood function
 
