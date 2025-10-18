@@ -308,7 +308,7 @@ class MatchingModel(Pytree, mutable=False):
         utility_Y: Array,
         mp: ModelParameters,
     ) -> Array:
-        """Updates fixed point equation for transfers
+        """Updates fixed-point equation for transfers
 
         Args:
             t_initial (Array): initial transfers
@@ -318,16 +318,17 @@ class MatchingModel(Pytree, mutable=False):
 
         Returns:
             t_updated (Array): updated transfers
+
+        Reference:
+            Andersen (2025), Note on solving one-to-one matching models with linear transferable utility, https://arxiv.org/pdf/2409.05518
         """
 
         # Calculate demand for both sides of the market
         demand_X = self.Demand_X(t_initial, utility_X, mp)
         demand_Y = self.Demand_Y(t_initial, utility_Y, mp)
 
-        log_Z = jnp.log(demand_Y / demand_X)
-
         # Update transfer
-        t_updated = t_initial + mp.adjustment * log_Z
+        t_updated = t_initial + mp.adjustment * jnp.log(demand_Y / demand_X)
         return t_updated
 
     def solve(
@@ -346,7 +347,7 @@ class MatchingModel(Pytree, mutable=False):
             utility_X (Array): utilities of agents of type X
             utility_Y (Array): utilities of agents of type Y
             mp (ModelParameters): model parameters
-            fixed_point_solver (SolverTypes): solver used for solving fixed point equation (FixedPointIteration, AndersonAcceleration, SquaremAcceleration)
+            fixed_point_solver (SolverTypes): solver used for solving fixed-point equation (FixedPointIteration, AndersonAcceleration, SquaremAcceleration)
             tol (float): stopping tolerance for step length of fixed-point iterations, x_{i+1} - x_{i}
             maxiter (int): maximum number of iterations
             verbose (bool): whether to print information on every iteration or not.
