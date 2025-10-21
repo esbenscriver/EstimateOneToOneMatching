@@ -20,8 +20,6 @@ from estimate_matching_model.dataclass_pytree import Data, ModelParameters, Solv
 from jaxopt import LBFGS
 from squarem_jaxopt import SquaremAcceleration
 
-# from functools import partial
-
 
 @dataclass
 class MatchingModel(Pytree, mutable=False):
@@ -556,7 +554,7 @@ class MatchingModel(Pytree, mutable=False):
         print(mp)
         utility_X, utility_Y = self.Utilities_of_agents(mp)
 
-        transfer = self.solve(utility_X, utility_Y, mp, verbose=True)
+        transfer = self.solve(utility_X, utility_Y, mp, verbose=False)
 
         pX_xy, pX_x0 = self.ChoiceProbabilities_X(transfer, utility_X, mp)
         pY_xy, pY_0y = self.ChoiceProbabilities_Y(transfer, utility_Y, mp)
