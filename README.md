@@ -2,7 +2,7 @@
 [![CD](https://github.com/esbenscriver/EstimateOneToOneMatching/actions/workflows/cd.yml/badge.svg)](https://github.com/esbenscriver/EstimateOneToOneMatching/actions/workflows/cd.yml)
 
 # Estimate one-to-one matching model
-This package estimate by maximum likelihood a one-to-one matching model with transferable utility where the choice probabilities of the agents on both sides of the matching market are given by the logit model. The estimator is closely related to the one proposed by [Dupuy and Galichon (2022)](https://doi.org/10.3982/QE928), and the distribution of transfers and matches are assumed to be observed.
+This package estimate by maximum likelihood a one-to-one matching model with transferable utility where the choice probabilities of the agents on both sides of the matching market are given by the logit model. The model is similar to the matching model proposed by [Choo and Siow (2006)](https://doi.org/10.1086/498585), whereas the estimator is closely related to the one proposed by [Dupuy and Galichon (2022)](https://doi.org/10.3982/QE928), as the distribution of transfers and matches are assumed to be observed.
 
 The model and estimator are implemented in JAX. We leverage the [SQUAREM](https://github.com/esbenscriver/squarem-JAXopt) accelerator to efficiently solve the system of fixed-point equations that characterize the equilibrium transfers. Finally, we rely on the [JAXopt](https://github.com/google/jaxopt) implementation of implicit differentiation when calculating the gradient of the log-likelihood function automatically.
 
