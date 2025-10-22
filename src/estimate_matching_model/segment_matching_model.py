@@ -34,10 +34,11 @@ class MatchingModel(eqx.Module):
         nest_idx_X (Array | None): nest index for the alternatives in the choice set for agents of type X
         nest_idx_Y (Array | None): nest index for the alternatives in the choice set for agents of type Y
     """
+
     covariates_X: Array
     covariates_Y: Array
     marginal_distribution_X: Array
-    marginal_distribution_Y: Array 
+    marginal_distribution_Y: Array
     types_idx_X: Array
     types_idx_Y: Array
     number_of_types_X: int
