@@ -10,7 +10,7 @@ import jax.numpy as jnp
 from jax import Array
 
 # import simple_pytree (used to store variables)
-from simple_pytree import Pytree, dataclass
+import equinox as eqx
 from estimate_matching_model.dataclass_pytree import ModelParameters, Data, SolverTypes
 
 # import solvers
@@ -18,8 +18,7 @@ from jaxopt import LBFGS
 from squarem_jaxopt import SquaremAcceleration
 
 
-@dataclass
-class MatchingModel(Pytree, mutable=False):
+class MatchingModel(eqx.Module):
     """Matching model
 
     Attributes:

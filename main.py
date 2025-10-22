@@ -19,7 +19,7 @@ import time
 # Increase precision to 64 bit
 jax.config.update("jax_enable_x64", True)
 
-segment = False
+segment = True
 
 types_X, types_Y = 200, 300
 number_of_parameters_X, number_of_parameters_Y = 2, 3

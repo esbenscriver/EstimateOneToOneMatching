@@ -13,7 +13,7 @@ from jax import Array
 from jax.ops import segment_max, segment_sum
 
 # import simple_pytree (used to store variables)
-from simple_pytree import Pytree, dataclass
+import equinox as eqx
 from estimate_matching_model.dataclass_pytree import Data, ModelParameters, SolverTypes
 
 # import solvers
@@ -21,8 +21,7 @@ from jaxopt import LBFGS
 from squarem_jaxopt import SquaremAcceleration
 
 
-@dataclass
-class MatchingModel(Pytree, mutable=False):
+class MatchingModel(eqx.Module):
     """Matching model
 
     Attributes:
@@ -35,6 +34,22 @@ class MatchingModel(Pytree, mutable=False):
         nest_idx_X (Array | None): nest index for the alternatives in the choice set for agents of type X
         nest_idx_Y (Array | None): nest index for the alternatives in the choice set for agents of type Y
     """
+    covariates_X: Array
+    covariates_Y: Array
+    marginal_distribution_X: Array
+    marginal_distribution_Y: Array 
+    types_idx_X: Array
+    types_idx_Y: Array
+    number_of_types_X: int
+    number_of_types_Y: int
+    nest_idx_X: Array | None
+    nest_idx_Y: Array | None
+    number_of_nests_X: int | None
+    number_of_nests_Y: int | None
+    type_nest_idx_X: Array | None
+    type_nest_idx_Y: Array | None
+    number_of_type_nests_X: int | None
+    number_of_type_nests_Y: int | None
 
     def __init__(
         self,

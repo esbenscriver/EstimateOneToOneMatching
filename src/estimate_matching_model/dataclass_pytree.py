@@ -3,19 +3,19 @@ Script containing classes common to matching_model.py and segment_matching_model
 """
 
 from jax import Array
-from simple_pytree import Pytree, dataclass
+import equinox as eqx
 
 # import solvers
 from jaxopt import FixedPointIteration, AndersonAcceleration
 from squarem_jaxopt import SquaremAcceleration
+
 
 SolverTypes = (
     type[SquaremAcceleration] | type[AndersonAcceleration] | type[FixedPointIteration]
 )
 
 
-@dataclass
-class ModelParameters(Pytree, mutable=False):
+class ModelParameters(eqx.Module):
     """Model parameters
 
     Attributes:
@@ -37,8 +37,7 @@ class ModelParameters(Pytree, mutable=False):
     nesting_parameter_Y: Array | None = None
 
 
-@dataclass
-class Data(Pytree, mutable=False):
+class Data(eqx.Module):
     """Observed data used for maximum likelihood estimation
 
     Attributes:
