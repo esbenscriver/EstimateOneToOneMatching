@@ -44,7 +44,6 @@ class MatchingModel(eqx.Module):
     number_of_types_X: int
     number_of_types_Y: int
 
-
     def __init__(
         self,
         covariates_X,
