@@ -35,6 +35,7 @@ class ModelParameters(eqx.Module):
         adjustment : Array
             adjustment factor for the fixed-point equation
     """
+
     beta_X: Array
     beta_Y: Array
     scale_X: Array
@@ -58,6 +59,7 @@ class Data(eqx.Module):
         unmatched_Y : Array
             observed numbers of unmatched agents of type Y
     """
+
     transfer: Array
     matched: Array
     unmatched_X: Array

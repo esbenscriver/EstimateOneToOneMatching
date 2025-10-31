@@ -43,6 +43,7 @@ class MatchingModel(eqx.Module):
         number_of_types_Y : int
             number of types of agents of type Y
     """
+
     covariates_X: Array
     covariates_Y: Array
     marginal_distribution_X: Array

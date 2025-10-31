@@ -31,6 +31,7 @@ class MatchingModel(eqx.Module):
         marginal_distribution_Y : Array
             marginal distribution of agents of type Y
     """
+
     covariates_X: Array
     covariates_Y: Array
 
