@@ -22,12 +22,15 @@ class MatchingModel(eqx.Module):
     """Matching model
 
     Attributes:
-        covariates_X (Array): covariates of utility function of agents of type X
-        covariates_Y (Array): covariates of utility function of agents of type Y
-        marginal_distribution_X (Array): marginal distribution of agents of type X
-        marginal_distribution_Y (Array): marginal distribution of agents of type Y
+        covariates_X : Array
+            covariates of agents of type X
+        covariates_Y : Array
+            covariates of agents of type Y
+        marginal_distribution_X : Array
+            marginal distribution of agents of type X
+        marginal_distribution_Y : Array
+            marginal distribution of agents of type Y
     """
-
     covariates_X: Array
     covariates_Y: Array
 
@@ -37,15 +40,19 @@ class MatchingModel(eqx.Module):
     def ChoiceProbabilities(self, v: Array, axis: int) -> tuple[Array, Array]:
         """Compute the logit choice probabilities for inside and outside options
 
-        Args:
-            v (Array): choice-specific payoffs
-            axis (int): axis that describes the choice set
+        Params
+        ----------
+            v : Array
+                value function for inside options
+            axis : int
+                axis along which to compute choice probabilities
 
-        Returns:
-        P_inside (Array):
-            choice probabilities of inside options.
-        P_outside (Array):
-            choice probabilities of outside option.
+        Returns
+        ----------
+            choice_probabilities_inside : Array
+                choice probabilities for inside options
+            choice_probabilities_outside : Array
+                choice probabilities for outside option
         """
         # Center by subtracting max for numerical stability
         v_max = jnp.max(v, axis=axis, keepdims=True)
@@ -60,12 +67,17 @@ class MatchingModel(eqx.Module):
     def Utility(self, covariates: Array, parameters: Array) -> Array:
         """Computes match-specific utilities
 
-        Args:
-            covariates (Array): covariates of utility function
-            parameters (Array): parameters of utility function
+        Params
+        ----------
+            covariates : Array
+                match-specific covariates
+            parameters : Array
+                parameters of agents' utility function
 
-        Returns:
-            demand (Array): match-specific utilities
+        Returns
+        ----------
+            utilities : Array
+                match-specific utilities
         """
         return jnp.einsum("ijk, k -> ij", covariates, parameters)
 
@@ -74,13 +86,21 @@ class MatchingModel(eqx.Module):
     ) -> tuple[Array, Array]:
         """Computes choice probabilities of agents of type X
 
-        Args:
-            transfer (Array): match-specific transfers
-            utility_X (Array): match-specific utilities for agents of type X
-            scale_X (Array): scale parameter of agents of type X
+        Params
+        ----------
+            transfer : Array
+                match-specific transfers
+            utility_X : Array
+                match-specific utilities for agents of type X
+            scale_X : Array
+                scale parameter of agents of type X
 
-        Returns:
-            ChoiceProbabilities (Array): match-specific choice probabilities for agents of type X
+        Returns
+        ----------
+            choice_probabilities_inside : Array
+                choice probabilities for inside options
+            choice_probabilities_outside : Array
+                choice probabilities for outside option
         """
         v_X = jax.lax.add(utility_X, transfer) / scale_X
         return self.ChoiceProbabilities(v_X, axis=1)
@@ -90,13 +110,21 @@ class MatchingModel(eqx.Module):
     ) -> tuple[Array, Array]:
         """Computes choice probabilities of agents of type Y
 
-        Args:
-            transfer (Array): match-specific transfers
-            utility_Y (Array): match-specific utilities for agents of type Y
-            scale_Y (Array): scale parameter of agents of type Y
+        Params
+        ----------
+            transfer : Array
+                match-specific transfers
+            utility_Y : Array
+                match-specific utilities for agents of type Y
+            scale_Y : Array
+                scale parameter of agents of type Y
 
-        Returns:
-            ChoiceProbabilities (Array): match-specific choice probabilities for agents of type Y
+        Returns
+        ----------
+            choice_probabilities_inside : Array
+                choice probabilities for inside options
+            choice_probabilities_outside : Array
+                choice probabilities for outside option
         """
         v_Y = jax.lax.sub(utility_Y, transfer) / scale_Y
         return self.ChoiceProbabilities(v_Y, axis=0)
@@ -104,13 +132,19 @@ class MatchingModel(eqx.Module):
     def Demand_X(self, transfer: Array, utility_X: Array, scale_X: Array) -> Array:
         """Computes agents of type X's demand for agents of type Y
 
-        Args:
-            transfer (Array): match-specific transfers
-            utility_X (Array): match-specific utilities
-            scale_X (Array): scale parameter of agents of type X
+        Params
+        ----------
+            transfer : Array
+                match-specific transfers
+            utility_X : Array
+                match-specific utilities for agents of type X
+            scale_X : Array
+                scale parameter of agents of type X
 
-        Returns:
-            demand (Array): demand for inside options
+        Returns
+        ----------
+            demand : Array
+                demand for inside options
         """
         return (
             self.marginal_distribution_X
@@ -120,13 +154,19 @@ class MatchingModel(eqx.Module):
     def Demand_Y(self, transfer: Array, utility_Y: Array, scale_Y: Array) -> Array:
         """Computes agents of type Y's demand for agents of type X
 
-        Args:
-            transfer (Array): match-specific transfers
-            utility_Y (Array): match-specific utilities
-            scale_Y (Array): scale parameter of agents of type Y
+        Params
+        ----------
+            transfer : Array
+                match-specific transfers
+            utility_Y : Array
+                match-specific utilities for agents of type Y
+            scale_Y : Array
+                scale parameter of agents of type Y
 
-        Returns:
-            demand (Array): demand for inside options
+        Returns
+        ----------
+            demand : Array
+                demand for inside options
         """
         return (
             self.marginal_distribution_Y
@@ -142,17 +182,21 @@ class MatchingModel(eqx.Module):
     ) -> Array:
         """Updates fixed-point equation for transfers
 
-        Args:
-            t_initial (Array): initial transfers
-            utility_X (Array): utility of agents of type X
-            utility_Y (Array): utility of agents of type Y
-            mp (ModelParameters): model parameters
+        Params
+        ----------
+            t_initial : Array
+                initial transfers
+            utility_X : Array
+                match-specific utilities for agents of type X
+            utility_Y : Array
+                match-specific utilities for agents of type Y
+            mp : ModelParameters
+                model parameters
 
-        Returns:
-            t_updated (Array): updated transfers
-
-        Reference:
-            Andersen (2025), Note on solving one-to-one matching models with linear transferable utility, https://arxiv.org/pdf/2409.05518
+        Returns
+        ----------
+            t_updated : Array
+                updated transfers
         """
         # Calculate demand for both sides of the market
         demand_X = self.Demand_X(t_initial, utility_X, mp.scale_X)
@@ -174,17 +218,27 @@ class MatchingModel(eqx.Module):
     ) -> Array:
         """Solve for equilibrium transfer
 
-        Args:
-            utility_X (Array): utilities of agents of type X
-            utility_Y (Array): utilities of agents of type Y
-            mp (ModelParameters): model parameters
-            fixed_point_solver (SolverTypes): solver used for solving fixed-point equation (FixedPointIteration, AndersonAcceleration, SquaremAcceleration)
-            tol (float): stopping tolerance for step length of fixed-point iterations, x_{i+1} - x_{i}
-            maxiter (int): maximum number of iterations
-            verbose (bool): whether to print information on every iteration or not.
+        Params
+        ----------
+            utility_X : Array
+                match-specific utilities for agents of type X
+            utility_Y : Array
+                match-specific utilities for agents of type Y
+            mp : ModelParameters
+                model parameters
+            fixed_point_solver : SolverTypes
+                solver used for solving fixed-point equation (FixedPointIteration, AndersonAcceleration, SquaremAcceleration)
+            tol : float
+                tolerance of the stopping criterion
+            maxiter : int
+                maximum number of fixed-point iterations
+            verbose : bool
+                if set to True prints the information at each step of the solver
 
-        Returns:
-            transfers (Array): equilibrium transfers
+        Returns
+        ----------
+            transfer : Array
+                equilibrium transfers
         """
         # Initial guess for equilibrium transfers
         transfer_init = jnp.zeros(self.covariates_X.shape[:-1])
@@ -201,14 +255,15 @@ class MatchingModel(eqx.Module):
     def extract_parameters(self, params: Array) -> ModelParameters:
         """Extract the scale parameters from params
 
-        Args:
-            params (Array): vector of model parameters
+        Params
+        ----------
+            params : Array
+                vector of model parameters
 
-        returns:
-            scale_X (Array):
-                scale parameter of agents of type X
-            scale_Y (Array):
-                scale parameter of agents of type Y
+        Returns
+        ----------
+            mp : ModelParameters
+                model parameters
         """
         number_of_covariates_X = self.covariates_X.shape[-1]
         number_of_covariates_Y = self.covariates_Y.shape[-1]
@@ -230,6 +285,18 @@ class MatchingModel(eqx.Module):
         )
 
     def restricted_parameters(self, unrestricted_params: Array):
+        """Restrict parameters to their original space
+
+        Params
+        ----------
+            unrestricted_params : Array
+                unrestricted model parameters
+
+        Returns
+        ----------
+            restricted_params : Array
+                restricted model parameters
+        """
         mp = self.extract_parameters(unrestricted_params)
         restricted_params = jnp.concatenate(
             [mp.beta_X, mp.beta_Y, mp.scale_X[None], mp.scale_Y[None]], axis=0
@@ -239,14 +306,17 @@ class MatchingModel(eqx.Module):
     def Utilities_of_agents(self, mp: ModelParameters) -> tuple[Array, Array]:
         """Compute match-specific utilities for agents of type X and Y
 
-        Args:
-            mp (ModelParameters): parameters of agents' utility functions
+        Params
+        ----------
+            mp : ModelParameters
+                model parameters
 
-        Returns:
-        utility_X (Array):
-            utilities for agents of type X
-        utility_Y (Array):
-            utilities for agents of type Y
+        Returns
+        ----------
+            utility_X : Array
+                match-specific utilities for agents of type X
+            utility_Y : Array
+                match-specific utilities for agents of type Y
         """
 
         utility_X = self.Utility(self.covariates_X, mp.beta_X)
@@ -256,12 +326,17 @@ class MatchingModel(eqx.Module):
     def neg_log_likelihood(self, params: Array, data: Data) -> Array:
         """Computes the negative log-likelihood function
 
-        Args:
-            params (Array): parameters of agents' utility functions
-            data (Data): observed transfers and numbers of matched and unmatched agents
+        Params
+        ----------
+            params : Array
+                vector of model parameters
+            data : Data
+                observed transfers and numbers of matched and unmatched agents
 
-        Returns:
-            neg_log_lik (Array): negative log-likelihood value
+        Returns
+        ----------
+            neg_log_lik : Array
+                negative log-likelihood value
         """
         mp = self.extract_parameters(params)
 
@@ -306,15 +381,23 @@ class MatchingModel(eqx.Module):
     ) -> Array:
         """Estimate parameters of matching model by maximum likelihood (minimize the negative log-likelihood function)
 
-        Args:
-            guess (Array): initial parameter guess
-            data (Data): observed transfers and numbers of matched and unmatched agents
-            tol (float): tolerance of the stopping criterion
-            maxiter (int): maximum number of proximal gradient descent iterations
-            verbose (bool): if set to True or 1 prints the information at each step of the solver, if set to 2, print also the information of the linesearch
+        Params
+        ----------
+            guess : Array
+                initial guess of model parameters
+            data : Data
+                observed transfers and numbers of matched and unmatched agents
+            tol : float
+                tolerance of the stopping criterion
+            maxiter : int
+                maximum number of iterations
+            verbose : bool | int
+                if set to True prints the information at each step of the solver
 
-        Returns:
-            params (Array): parameter estimates
+        Returns
+        ----------
+            estimated_params : Array
+                estimated model parameters
         """
 
         result = LBFGS(
@@ -328,11 +411,15 @@ class MatchingModel(eqx.Module):
     def predict(self, params: Array) -> Data:
         """Predict transfers and number of matched and unmatched agents
 
-        Args:
-            params (Array): estimated parameters
+        Params
+        ----------
+            params : Array
+                vector of model parameters
 
-        Returns:
-            predictions (Data): preditcted transfers and number of matched and unmatched agents
+        Returns
+        ----------
+            prediction : Data
+                predicted transfers and numbers of matched and unmatched agents
         """
         mp = self.extract_parameters(params)
         utility_X, utility_Y = self.Utilities_of_agents(mp)
